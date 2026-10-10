@@ -1,0 +1,4 @@
+// Error semantico: asignacion de texto a entero y operacion invalida
+definir $x como entero con valor de "texto".
+definir $y como entero con valor de 5.
+$y con valor de $y + "hola".

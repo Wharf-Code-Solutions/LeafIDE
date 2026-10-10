@@ -1,0 +1,14 @@
+lexico: OK
+  tabla "Tokens": 17 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 1 filas
+  tabla "Traza de ámbitos": 3 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  sintactico L4:C19 - Falta ")" para cerrar el paréntesis. Se encontró: "$PI".
+  semantico L3:C1 - La constante '$PI' es inmutable y no puede ser reasignada.

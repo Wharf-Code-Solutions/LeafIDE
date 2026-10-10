@@ -1,0 +1,36 @@
+lexico: OK
+  tabla "Tokens": 507 filas
+  tabla "Conteo por categoría": 8 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 30 filas
+  tabla "Traza de ámbitos": 122 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  sintactico L189:C44 - Falta "." al final de la instrucción antes de "mostrar".
+  sintactico L193:C11 - Error en el "repetir".
+  sintactico L198:C14 - Error en la cabecera del "para".
+  sintactico L203:C1 - Se encontró un '$' suelto. Las variables deben llevar letras pegadas al símbolo.
+  sintactico L207:C5 - No se permite declarar funciones dentro de otra función, ciclo o condicional.
+  sintactico L207:C37 - Se encontró un bloque "> ... <" huérfano.
+  semantico L28:C9 - El identificador '$a' ya fue declarado previamente en este ámbito como variable.
+  semantico L31:C11 - El identificador '$PI' ya fue declarado previamente en este ámbito como constante.
+  semantico L38:C25 - El tipo 'vacio' es exclusivo para funciones, una variable no puede ser vacía.
+  semantico L45:C40 - Incompatibilidad de tipos: Intentas guardar un 'texto' en una variable definida como 'entero'.
+  semantico L48:C40 - Incompatibilidad de tipos: Intentas guardar un 'entero' en una variable definida como 'logico'.
+  semantico L59:C9 - Uso de variable fantasma: '$no_existe' no ha sido declarada.
+  semantico L66:C1 - La constante '$PI' es inmutable y no puede ser reasignada.
+  semantico L73:C1 - Choque de tipos: No puedes asignar un 'texto' a la variable '$a' que es de tipo 'entero'.
+  semantico L95:C9 - La función 'sumar' ya existe. Fue declarada previamente como funcion.
+  semantico L96:C5 - La función promete entregar 'vacio' pero está intentando retornar 'entero'.
+  semantico L100:C43 - El parámetro '$x' ya fue declarado previamente en este ámbito como parametro.
+  semantico L105:C31 - No se pueden usar parámetros de tipo vacio.
+  semantico L106:C13 - Uso de variable fantasma: '$p' no ha sido declarada.
+  semantico L110:C38 - Estás llamando a la función 'noExiste', pero no existe.
+  semantico L113:C38 - La función 'sumar' exige 2 argumento(s), pero le enviaste 1.
+  semantico L116:C47 - El argumento #2 de 'sumar' debe ser 'entero', pero le enviaste un 'texto'.
+  semantico L120:C5 - La función promete entregar 'entero' pero está intentando retornar 'texto'.
+  semantico L179:C1 - Choque de tipos: No puedes asignar un 'texto' al elemento de '$lista' que es de tipo 'entero'.

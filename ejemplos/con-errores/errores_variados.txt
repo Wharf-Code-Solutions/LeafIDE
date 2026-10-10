@@ -1,0 +1,4 @@
+// Error mixto: lexico (tilde en identificador no permitida si no esta en la variable pero aqui la variable lleva $), sintactico (falta coma), semantico (constante reasignada)
+constante $PI como decimal con valor de 3.14.
+$PI con valor de 3.1416.
+mostrar("PI es: " $PI).

@@ -1,0 +1,26 @@
+{
+  "nombre": "Leaf",
+  "extensiones": ["leaf", "txt"],
+  "palabras": {
+    "reservada": [
+      "definir", "como", "con valor de", "constante",
+      "mostrar", "ingresar",
+      "funcion", "entrega", "retornar",
+      "si", "sino si", "sino", "segun", "caso", "defecto", "romper", "continuar",
+      "mientras", "repetir", "veces", "para", "hasta", "paso", "hacer",
+      "en", "de", "agregar", "quitar", "indice", "longitud"
+    ],
+    "tipo": ["entero", "decimal", "texto", "logico", "arreglo", "vacio"],
+    "literal": ["verdadero", "falso"],
+    "operador": [
+      "Y", "O", "NO",
+      "igual que", "diferente que",
+      "mayor que", "menor que", "mayor o igual que", "menor o igual que"
+    ]
+  },
+  "operadores": ["+", "-", "*", "/", "^", "-/", "%", "->"],
+  "delimitadores": [".", "(", ")", ">", "<", "[", "]", ","],
+  "comentarioLinea": "//",
+  "comentarioBloque": { "inicio": "/*", "fin": "*/" },
+  "prefijoVariable": "$"
+}

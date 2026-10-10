@@ -1,0 +1,14 @@
+lexico: CON_ERRORES
+  tabla "Tokens": 17 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: OK
+  tabla "Tabla de símbolos": 1 filas
+  tabla "Traza de ámbitos": 5 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  lexico L3:C20 - Carácter no reconocido: '@'.
+  sintactico L3:C17 - Falta "." al final de la instrucción antes de "5".

@@ -1,0 +1,30 @@
+lexico: CON_ERRORES
+  tabla "Tokens": 145 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 11 filas
+  tabla "Traza de ámbitos": 36 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  lexico L59:C38 - Carácter no reconocido: ';'.
+  lexico L62:C22 - Carácter no reconocido: ';'.
+  lexico L65:C41 - Carácter no reconocido: ';'.
+  sintactico L59:C37 - Falta "." al final de la instrucción antes de "calcularSueldo".
+  semantico L9:C1 - Uso de variable fantasma: '$resultadoFantasma' no ha sido declarada.
+  semantico L9:C33 - Uso de variable fantasma: '$inexistente' no ha sido declarada.
+  semantico L16:C1 - La constante '$VERSION_OS' es inmutable y no puede ser reasignada.
+  semantico L22:C26 - El tipo 'vacio' es exclusivo para funciones, una variable no puede ser vacía.
+  semantico L23:C28 - El tipo 'vacio' es exclusivo para funciones, una constante no puede ser vacía.
+  semantico L29:C51 - Incompatibilidad de tipos: Intentas guardar un 'texto' en una variable definida como 'entero'.
+  semantico L30:C47 - Incompatibilidad de tipos: Intentas guardar un 'logico' en una variable definida como 'decimal'.
+  semantico L36:C61 - Operación matemática inválida entre 'texto' y 'entero'. Solo se permiten números.
+  semantico L45:C5 - La función promete entregar 'entero' pero está intentando retornar 'texto'.
+  semantico L50:C5 - La función promete entregar 'vacio' pero está intentando retornar 'entero'.
+  semantico L56:C5 - Uso de variable fantasma: '$x' no ha sido declarada.
+  semantico L56:C21 - Estás llamando a la función 'funcionQueNoExiste', pero no existe.
+  semantico L59:C5 - La función 'calcularSueldo' exige 2 argumento(s), pero le enviaste 3.
+  semantico L72:C45 - No se pueden usar parámetros de tipo vacio.

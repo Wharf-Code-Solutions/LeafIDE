@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>mx.leaf</groupId>
+        <artifactId>leaf-ide-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>leaf-adapter-v1</artifactId>
+    <packaging>jar</packaging>
+    <name>Leaf - adaptador v1 (unico que conoce generado.*)</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-compiler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

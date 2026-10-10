@@ -1,0 +1,14 @@
+lexico: OK
+  tabla "Tokens": 18 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: OK
+  tabla "Tabla de símbolos": 1 filas
+  tabla "Traza de ámbitos": 4 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  sintactico L3:C21 - Bloque abierto con ">" en la línea 3 nunca fue cerrado con "<".
+  sintactico L4:C23 - Fin de archivo inesperado. Revisa si olvidaste colocar un "<" para cerrar un bloque, un paréntesis ")" o una instrucción con ".".

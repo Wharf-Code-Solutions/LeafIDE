@@ -1,0 +1,3 @@
+// Error semantico 2: uso de variable no declarada y llamada a funcion que no existe
+$z con valor de 10.
+definir $res como vacio con valor de funcionFalsa().

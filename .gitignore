@@ -1,0 +1,25 @@
+# --- Binarios y salidas de build ---
+target/
+out/
+*.class
+*.jar
+!.mvn/wrapper/*.jar
+
+# --- Archivos de IDE ---
+.idea/
+*.iml
+.vscode/
+
+# --- Registros ---
+*.log
+
+# --- Temporales de Windows ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.tmp
+~$*
+
+# --- Copia original del compilador (sobrantes: .class, .idea). No se versiona. ---
+compiler-origen/

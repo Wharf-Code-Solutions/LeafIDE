@@ -1,0 +1,4 @@
+// Error lexico: símbolo @ no existe en Leaf
+definir $x como entero con valor de 10.
+$x con valor de $x @ 5.
+mostrar($x).

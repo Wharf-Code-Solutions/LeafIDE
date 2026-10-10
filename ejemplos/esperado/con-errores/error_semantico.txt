@@ -1,0 +1,14 @@
+lexico: OK
+  tabla "Tokens": 20 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: OK
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 2 filas
+  tabla "Traza de ámbitos": 5 filas
+intermedio: NO_IMPLEMENTADA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  semantico L2:C37 - Incompatibilidad de tipos: Intentas guardar un 'texto' en una variable definida como 'entero'.
+  semantico L4:C22 - Operación matemática inválida entre 'entero' y 'texto'. Solo se permiten números.

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>mx.leaf</groupId>
+        <artifactId>leaf-ide-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>leaf-ide-app</artifactId>
+    <packaging>jar</packaging>
+    <name>Leaf - IDE App (ensamblado)</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-ide-ui</artifactId>
+        </dependency>
+
+        <!-- Solo se necesita en tiempo de ejecucion: ServiceLoader lo encuentra. Ningun codigo de ide-app lo importa. -->
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-adapter-v1</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- java -jar ide-app\target\leaf-ide-app-0.1.0-SNAPSHOT.jar  (las bibliotecas quedan en target\lib) -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>leaf.ide.app.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                        <manifestEntries>
+                            <!-- FlatLaf carga una biblioteca nativa: sin esto JDK 26 imprime avisos de acceso restringido. -->
+                            <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copiar-bibliotecas</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

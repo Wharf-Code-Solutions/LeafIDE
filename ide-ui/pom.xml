@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>mx.leaf</groupId>
+        <artifactId>leaf-ide-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>leaf-ide-ui</artifactId>
+    <packaging>jar</packaging>
+    <name>Leaf - IDE UI (Swing)</name>
+
+    <!-- ide-ui depende de ide-core y api. NO importa adapter-v1 ni compiler (nunca generado.*). -->
+    <dependencies>
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-ide-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mx.leaf</groupId>
+            <artifactId>leaf-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.andrewauclair</groupId>
+            <artifactId>modern-docking-single-app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.andrewauclair</groupId>
+            <artifactId>modern-docking-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

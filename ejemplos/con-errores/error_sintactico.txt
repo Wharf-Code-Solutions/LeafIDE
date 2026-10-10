@@ -1,0 +1,4 @@
+// Error sintactico: falta el punto final y cierre de bloque
+definir $x como entero con valor de 5.
+si ($x mayor que 0) >
+    mostrar("Positivo")
