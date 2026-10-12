@@ -23,7 +23,9 @@ public final class Aplicacion {
     public static void iniciar(ProveedorCompilador proveedor, Map<String, String> entornoDeProcesos) {
         SwingUtilities.invokeLater(() -> {
             FlatLightLaf.setup();
-            new VentanaPrincipal(proveedor, 500, entornoDeProcesos, AlmacenAjustes.carpetaDelUsuario()).setVisible(true);
+            VentanaPrincipal ventana = new VentanaPrincipal(proveedor, 500, entornoDeProcesos, AlmacenAjustes.carpetaDelUsuario());
+            ventana.setVisible(true);
+            SwingUtilities.invokeLater(ventana::pedirCarpetaSiHaceFalta);
         });
     }
 

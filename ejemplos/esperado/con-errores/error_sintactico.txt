@@ -6,7 +6,7 @@ sintactico: CON_ERRORES
 semantico: OK
   tabla "Tabla de símbolos": 1 filas
   tabla "Traza de ámbitos": 4 filas
-intermedio: NO_IMPLEMENTADA
+intermedio: OMITIDA
 optimizacion: NO_IMPLEMENTADA
 objeto: NO_IMPLEMENTADA
 diagnosticos:

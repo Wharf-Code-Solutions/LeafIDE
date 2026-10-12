@@ -5,8 +5,8 @@ sintactico: CON_ERRORES
   arbol "Árbol sintáctico (AST)": raíz Programa
 semantico: CON_ERRORES
   tabla "Tabla de símbolos": 11 filas
-  tabla "Traza de ámbitos": 36 filas
-intermedio: NO_IMPLEMENTADA
+  tabla "Traza de ámbitos": 28 filas
+intermedio: OMITIDA
 optimizacion: NO_IMPLEMENTADA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
@@ -22,6 +22,7 @@ diagnosticos:
   semantico L29:C51 - Incompatibilidad de tipos: Intentas guardar un 'texto' en una variable definida como 'entero'.
   semantico L30:C47 - Incompatibilidad de tipos: Intentas guardar un 'logico' en una variable definida como 'decimal'.
   semantico L36:C61 - Operación matemática inválida entre 'texto' y 'entero'. Solo se permiten números.
+  semantico L37:C61 - Operación lógica inválida: 'Y' y 'O' requieren valores lógicos, pero recibió 'logico' y 'texto'.
   semantico L45:C5 - La función promete entregar 'entero' pero está intentando retornar 'texto'.
   semantico L50:C5 - La función promete entregar 'vacio' pero está intentando retornar 'entero'.
   semantico L56:C5 - Uso de variable fantasma: '$x' no ha sido declarada.

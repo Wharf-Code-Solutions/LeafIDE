@@ -61,7 +61,7 @@ class InterpreteLeafTest {
     @Test
     void ayudaListaLosComandosYElDetalleDeUno() {
         String general = ok("ayuda").texto();
-        for (String c : List.of("compilar", "tokens", "ast", "simbolos", "errores", "abrir", "guardar", "nuevo", "ls", "cd",
+        for (String c : List.of("compilar", "tokens", "ast", "simbolos", "cuadruplos", "errores", "abrir", "guardar", "nuevo", "ls", "cd",
                 "tema", "fases", "version", "limpiar", "ejecutar", "perspectiva", "leafc")) {
             assertTrue(general.contains(c), "falta " + c + " en la ayuda:\n" + general);
         }
@@ -221,6 +221,13 @@ class InterpreteLeafTest {
     }
 
     @Test
+    void cuadruplosExplicaPorQueNoHayTablaCuandoLaFaseNoGeneraNada() {
+        String t = ok("cuadruplos").texto();
+        assertTrue(t.contains("No hay cuádruplos"), t);
+        assertFalse(ctx.ultimoActualizar, "cuadruplos no debe cambiar lo que se ve en las pestañas");
+    }
+
+    @Test
     void simbolosImprimeLaTabla() {
         String t = ok("simbolos").texto();
         assertTrue(t.contains("Nombre"), t);
@@ -322,6 +329,17 @@ class InterpreteLeafTest {
         ctx.fallar = new IllegalStateException("se rompió");
         InterpreteLeaf.Respuesta r = falla("abrir u.leaf");
         assertTrue(r.texto().contains("Error interno del comando 'abrir'"), r.texto());
+    }
+
+    @Test
+    void cambiarDirectorioDesdeFueraEsComoUnCd() throws IOException {
+        Path otra = Files.createDirectory(carpeta.resolve("proyecto"));
+        Files.writeString(otra.resolve("hola.txt"), "x");
+        interprete.cambiarDirectorio(otra);
+        assertEquals(otra.toAbsolutePath().normalize(), interprete.directorio());
+        assertTrue(ok("ls").texto().contains("hola.txt"));
+        interprete.cambiarDirectorio(carpeta.resolve("no-existe")); // se ignora
+        assertEquals(otra.toAbsolutePath().normalize(), interprete.directorio());
     }
 
     @Test

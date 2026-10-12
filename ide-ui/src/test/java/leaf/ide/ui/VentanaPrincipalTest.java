@@ -100,11 +100,16 @@ class VentanaPrincipalTest {
     @Test
     void conElInterruptorApagadoNoAnalizaSolo() throws Exception {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "sin pantalla");
-        VentanaPrincipal v = enEdt(() -> new VentanaPrincipal(proveedorFalso(), 100));
+        // Se apaga en el mismo evento en que se crea la ventana: así el análisis que deja programado el texto inicial
+        // no llega a ocurrir (con la ventana ya abierta podría adelantarse a la prueba).
+        VentanaPrincipal v = enEdt(() -> {
+            VentanaPrincipal nueva = new VentanaPrincipal(proveedorFalso(), 100);
+            nueva.enVivo.doClick(); // lo apaga (estaba encendido)
+            return nueva;
+        });
         try {
             SwingUtilities.invokeAndWait(() -> v.setVisible(true)); // para saber qué panel está al frente
             SwingUtilities.invokeAndWait(() -> {
-                v.enVivo.doClick(); // lo apaga (estaba encendido)
                 v.estado.setText("sin tocar");
                 v.editor.cargar("uno\ndos\ntres");
             });

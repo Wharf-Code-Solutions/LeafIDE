@@ -19,9 +19,17 @@ class AlmacenAjustesTest {
     @Test
     void loGuardadoSeLeeIgual(@TempDir Path dir) throws IOException {
         AlmacenAjustes almacen = new AlmacenAjustes(dir.resolve("datos")); // la carpeta se crea sola
-        Ajustes a = new Ajustes(true, false, false, "EVALUACION");
+        Ajustes a = new Ajustes(true, false, false, "EVALUACION", "C:\\Leaf", false);
         almacen.guardar(a);
         assertEquals(a, almacen.leer());
+    }
+
+    @Test
+    void laSincronizacionDeLaTerminalEstaEncendidaPorDefectoYSeRecuerdaApagada(@TempDir Path dir) throws IOException {
+        AlmacenAjustes almacen = new AlmacenAjustes(dir);
+        assertEquals(true, almacen.leer().sincronizarTerminal());
+        almacen.guardar(Ajustes.porDefecto().conSincronizarTerminal(false));
+        assertEquals(false, almacen.leer().sincronizarTerminal());
     }
 
     @Test
@@ -36,6 +44,6 @@ class AlmacenAjustesTest {
     void valoresInvalidosCaenAlDefectoClaveAClave(@TempDir Path dir) throws IOException {
         Files.writeString(dir.resolve("ajustes.properties"),
                 "temaOscuro=quizá\nanalisisEnVivo=false\nperspectiva=   \n", StandardCharsets.UTF_8);
-        assertEquals(new Ajustes(false, false, true, Ajustes.PERSPECTIVA_INICIAL), new AlmacenAjustes(dir).leer());
+        assertEquals(new Ajustes(false, false, true, Ajustes.PERSPECTIVA_INICIAL, "", true), new AlmacenAjustes(dir).leer());
     }
 }

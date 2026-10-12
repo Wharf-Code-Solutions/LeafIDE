@@ -46,7 +46,9 @@ public final class AlmacenAjustes {
                 booleano(p, "temaOscuro", base.temaOscuro()),
                 booleano(p, "analisisEnVivo", base.analisisEnVivo()),
                 booleano(p, "resaltado", base.resaltado()),
-                perspectiva.isEmpty() ? base.perspectiva() : perspectiva);
+                perspectiva.isEmpty() ? base.perspectiva() : perspectiva,
+                p.getProperty("carpetaTrabajo", "").strip(),
+                booleano(p, "sincronizarTerminal", base.sincronizarTerminal()));
     }
 
     public void guardar(Ajustes a) throws IOException {
@@ -56,6 +58,8 @@ public final class AlmacenAjustes {
         p.setProperty("analisisEnVivo", Boolean.toString(a.analisisEnVivo()));
         p.setProperty("resaltado", Boolean.toString(a.resaltado()));
         p.setProperty("perspectiva", a.perspectiva());
+        p.setProperty("carpetaTrabajo", a.carpetaTrabajo());
+        p.setProperty("sincronizarTerminal", Boolean.toString(a.sincronizarTerminal()));
         try (Writer w = Files.newBufferedWriter(carpeta.resolve(ARCHIVO), StandardCharsets.UTF_8)) {
             p.store(w, "Ajustes de LeafIDE");
         }

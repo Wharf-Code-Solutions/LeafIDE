@@ -57,6 +57,17 @@ class TerminalSistemaTest {
     }
 
     @Test
+    void cambiarDirectorioMueveLaTerminalYLosComandosSiguenAhi() throws Exception {
+        Path otra = java.nio.file.Files.createDirectory(carpeta.resolve("otra"));
+        assertTrue(terminal.cambiarDirectorio(otra));
+        assertEquals(otra.toAbsolutePath().normalize(), terminal.directorio());
+        ejecutarYEsperar("echo %CD%");
+        assertTrue(recolector.texto.toString().contains(otra.getFileName().toString()), recolector.texto.toString());
+        assertFalse(terminal.cambiarDirectorio(carpeta.resolve("no-existe")), "una ruta inexistente no mueve la terminal");
+        assertEquals(otra.toAbsolutePath().normalize(), terminal.directorio());
+    }
+
+    @Test
     void ejecutaUnComandoYMuestraSuSalida() throws Exception {
         ejecutarYEsperar("echo hola");
         assertTrue(recolector.texto.toString().contains("hola"), recolector.texto.toString());

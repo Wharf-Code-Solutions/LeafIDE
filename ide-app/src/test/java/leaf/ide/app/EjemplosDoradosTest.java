@@ -51,7 +51,7 @@ class EjemplosDoradosTest {
                 }));
             }
         }
-        assertEquals(24, pruebas.size(), "Se esperaban 24 ejemplos");
+        assertEquals(26, pruebas.size(), "Se esperaban 26 ejemplos");
         return pruebas;
     }
 
@@ -59,7 +59,15 @@ class EjemplosDoradosTest {
         int diagnosticos = fases.stream().mapToInt(f -> f.diagnosticos().size()).sum();
         if (carpeta.equals("validos")) assertEquals(0, diagnosticos, "un ejemplo válido no debe dar diagnósticos");
         if (carpeta.equals("con-errores")) assertTrue(diagnosticos >= 1, "un ejemplo con errores debe dar al menos uno");
-        for (String futura : List.of("intermedio", "optimizacion", "objeto")) {
+        // El código intermedio solo existe si el programa no tiene ningún error (como en Leaf.main).
+        ResultadoFase intermedio = fases.stream().filter(f -> f.faseId().equals("intermedio")).findFirst().orElseThrow();
+        if (diagnosticos == 0) {
+            assertEquals(Estado.OK, intermedio.estado(), "sin errores debe haber código intermedio");
+            assertTrue(!intermedio.artefactos().isEmpty(), "el código intermedio debe traer sus artefactos");
+        } else {
+            assertEquals(Estado.OMITIDA, intermedio.estado(), "con errores no se genera código intermedio");
+        }
+        for (String futura : List.of("optimizacion", "objeto")) {
             assertEquals(Estado.NO_IMPLEMENTADA, fases.stream().filter(f -> f.faseId().equals(futura)).findFirst()
                     .orElseThrow().estado(), "fase futura " + futura);
         }

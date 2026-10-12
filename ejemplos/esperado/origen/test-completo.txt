@@ -5,8 +5,8 @@ sintactico: CON_ERRORES
   arbol "Árbol sintáctico (AST)": raíz Programa
 semantico: CON_ERRORES
   tabla "Tabla de símbolos": 30 filas
-  tabla "Traza de ámbitos": 122 filas
-intermedio: NO_IMPLEMENTADA
+  tabla "Traza de ámbitos": 107 filas
+intermedio: OMITIDA
 optimizacion: NO_IMPLEMENTADA
 objeto: NO_IMPLEMENTADA
 diagnosticos:

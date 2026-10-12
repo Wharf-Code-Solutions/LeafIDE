@@ -2,6 +2,8 @@ package generado;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +23,34 @@ class ServicioCompilacionTest {
         assertEquals(0, r2.errores.size(), r2.errores.toString());
         assertEquals(2, r3.errores.size(), r3.errores.toString());
         assertEquals(r1.errores, r3.errores);
+    }
+
+    @Test
+    void unProgramaSinErroresGeneraCodigoIntermedio() {
+        ResultadoCompilacion r = ServicioCompilacion.compilar("definir $x como entero con valor de 1.\nmostrar($x).");
+
+        assertNotNull(r.codigoIntermedio);
+        assertNull(r.fallaCodigoIntermedio);
+        assertEquals(Cuadrupla.Op.INICIO, r.codigoIntermedio.getCuadruplas().get(0).op);
+        assertEquals("$x", r.codigoIntermedio.getCuadruplas().get(1).resultado);
+        assertEquals(Cuadrupla.Op.FIN, r.codigoIntermedio.getCuadruplas().get(r.codigoIntermedio.getCuadruplas().size() - 1).op);
+    }
+
+    @Test
+    void conErroresNoSeGeneraCodigoIntermedio() {
+        ResultadoCompilacion r = ServicioCompilacion.compilar(CON_DOS_ERRORES);
+
+        assertTrue(r.hayErrores());
+        assertNull(r.codigoIntermedio);
+        assertNull(r.fallaCodigoIntermedio);
+    }
+
+    @Test
+    void cadaCompilacionEmpiezaSusTemporalesDeCero() {
+        String programa = "definir $a como entero con valor de 2.\ndefinir $b como entero con valor de $a + 3.";
+        String primera = ServicioCompilacion.compilar(programa).codigoIntermedio.getTexto().toString();
+        String segunda = ServicioCompilacion.compilar(programa).codigoIntermedio.getTexto().toString();
+        assertEquals(primera, segunda);
     }
 
     @Test

@@ -14,33 +14,35 @@ public interface LeafTreeConstants
   public int JJTLEER = 8;
   public int JJTLITERAL = 9;
   public int JJTEXPRESION = 10;
-  public int JJTNOT = 11;
-  public int JJTCOMPARACION = 12;
-  public int JJTARITMETICA = 13;
-  public int JJTNEGACION = 14;
-  public int JJTRAIZ = 15;
-  public int JJTLONGITUD = 16;
-  public int JJTTIPO = 17;
-  public int JJTTIPOARREGLO = 18;
-  public int JJTOPERADOR = 19;
-  public int JJTCONDICIONAL = 20;
-  public int JJTSEGUN = 21;
-  public int JJTCASO = 22;
-  public int JJTMIENTRAS = 23;
-  public int JJTHACERMIENTRAS = 24;
-  public int JJTREPETIR = 25;
-  public int JJTPARA = 26;
-  public int JJTDEFFUNCION = 27;
-  public int JJTPARAMETRO = 28;
-  public int JJTROMPER = 29;
-  public int JJTCONTINUAR = 30;
-  public int JJTLLAMADAFUNCION = 31;
-  public int JJTRETORNAR = 32;
-  public int JJTMOSTRAR = 33;
-  public int JJTLITERALARREGLO = 34;
-  public int JJTACCESOARREGLO = 35;
-  public int JJTAGREGAR = 36;
-  public int JJTQUITAR = 37;
+  public int JJTLOGICA = 11;
+  public int JJTNOT = 12;
+  public int JJTCOMPARACION = 13;
+  public int JJTARITMETICA = 14;
+  public int JJTNEGACION = 15;
+  public int JJTRAIZ = 16;
+  public int JJTLONGITUD = 17;
+  public int JJTTIPO = 18;
+  public int JJTTIPOARREGLO = 19;
+  public int JJTOPERADOR = 20;
+  public int JJTCONDICIONAL = 21;
+  public int JJTSEGUN = 22;
+  public int JJTCASO = 23;
+  public int JJTDEFECTO = 24;
+  public int JJTMIENTRAS = 25;
+  public int JJTHACERMIENTRAS = 26;
+  public int JJTREPETIR = 27;
+  public int JJTPARA = 28;
+  public int JJTDEFFUNCION = 29;
+  public int JJTPARAMETRO = 30;
+  public int JJTROMPER = 31;
+  public int JJTCONTINUAR = 32;
+  public int JJTLLAMADAFUNCION = 33;
+  public int JJTRETORNAR = 34;
+  public int JJTMOSTRAR = 35;
+  public int JJTLITERALARREGLO = 36;
+  public int JJTACCESOARREGLO = 37;
+  public int JJTAGREGAR = 38;
+  public int JJTQUITAR = 39;
 
 
   public String[] jjtNodeName = {
@@ -55,6 +57,7 @@ public interface LeafTreeConstants
     "Leer",
     "Literal",
     "Expresion",
+    "Logica",
     "Not",
     "Comparacion",
     "Aritmetica",
@@ -67,6 +70,7 @@ public interface LeafTreeConstants
     "Condicional",
     "Segun",
     "Caso",
+    "Defecto",
     "Mientras",
     "HacerMientras",
     "Repetir",
@@ -84,4 +88,4 @@ public interface LeafTreeConstants
     "Quitar",
   };
 }
-/* JavaCC - OriginalChecksum=7a9a643b91ffa9601651562deec2fb86 (do not edit this line) */
+/* JavaCC - OriginalChecksum=ead99bf446c3574ad0202011b3c9633e (do not edit this line) */

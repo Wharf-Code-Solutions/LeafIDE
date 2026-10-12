@@ -5,8 +5,10 @@ sintactico: OK
   arbol "Árbol sintáctico (AST)": raíz Programa
 semantico: OK
   tabla "Tabla de símbolos": 6 filas
-  tabla "Traza de ámbitos": 23 filas
-intermedio: NO_IMPLEMENTADA
+  tabla "Traza de ámbitos": 21 filas
+intermedio: OK
+  tabla "Cuádruplos": 31 filas
+  tabla "Temporales": 7 filas
 optimizacion: NO_IMPLEMENTADA
 objeto: NO_IMPLEMENTADA
 diagnosticos:

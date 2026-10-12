@@ -1,0 +1,66 @@
+lexico: CON_ERRORES
+  tabla "Tokens": 285 filas
+  tabla "Conteo por categoría": 8 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 3 filas
+  tabla "Traza de ámbitos": 30 filas
+intermedio: OMITIDA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  lexico L14:C27 - Carácter no reconocido: '='.
+  lexico L17:C22 - Carácter no reconocido: ';'.
+  lexico L20:C25 - Carácter no reconocido: '{'.
+  lexico L22:C1 - Carácter no reconocido: '}'.
+  lexico L25:C24 - Carácter no reconocido: '&'.
+  sintactico L11:C9 - Se encontró un '$' suelto o mal formado. Las variables deben llevar letras pegadas al símbolo.
+  sintactico L14:C29 - Se esperaba "con valor de" para asignar el valor. Se encontró: "20".
+  sintactico L17:C21 - Falta "." al final de la instrucción antes de "si".
+  sintactico L25:C26 - Error en la condición del "si".
+  sintactico L34:C24 - Lo que se encontró no es un tipo de dato válido ("int").
+  sintactico L35:C22 - Lo que se encontró no es un tipo de dato válido ("string").
+  sintactico L36:C23 - Lo que se encontró no es un tipo de dato válido ("bool").
+  sintactico L44:C15 - Error en la condición del "si".
+  sintactico L44:C17 - Una instrucción no puede comenzar con un número ("5").
+  sintactico L44:C20 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L44:C15 - Bloque abierto con ">" en la línea 44 nunca fue cerrado con "<".
+  sintactico L50:C15 - Se encontró un "(" inesperado. Si intentabas acceder a un arreglo usa corchetes "[".
+  sintactico L53:C44 - Se esperaba un valor fijo. Las constantes no pueden inicializarse usando variables.
+  sintactico L56:C1 - No se permite declarar funciones dentro de otra función, ciclo o condicional.
+  sintactico L56:C41 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L61:C9 - Se esperaba una variable. Recuerda que deben empezar con "$". Se encontró: "precio".
+  sintactico L64:C23 - Se esperaba la palabra "paso" para definir el incremento del ciclo "para".
+  sintactico L75:C1 - Una instrucción no puede comenzar con un número ("100").
+  sintactico L76:C1 - Una instrucción no puede comenzar con un texto suelto.
+  sintactico L79:C1 - Una instrucción no puede comenzar con un valor lógico suelto.
+  sintactico L82:C1 - "caso" solo puede usarse dentro de un bloque "según".
+  sintactico L83:C1 - "defecto" solo puede usarse dentro de un bloque "según".
+  sintactico L84:C1 - "sino" no puede aparecer sin un "si" antes.
+  sintactico L84:C6 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L85:C1 - "sino si" no puede aparecer sin un "si" antes.
+  sintactico L85:C33 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L88:C1 - Una instrucción no puede comenzar con el operador "+".
+  sintactico L89:C1 - Una instrucción no puede comenzar con un operador de comparación.
+  sintactico L90:C1 - Una instrucción no puede comenzar con el operador lógico "Y".
+  sintactico L91:C1 - "NO" solo se usa dentro de una condición; no puede empezar una instrucción por sí solo.
+  sintactico L94:C1 - "como" no puede aparecer aquí.
+  sintactico L95:C1 - "con valor de" no puede aparecer aquí.
+  sintactico L96:C1 - "entrega" solo se usa en la cabecera de una función.
+  sintactico L104:C28 - Se esperaba "con valor de" para asignar el valor. Se encontró: "9.5".
+  sintactico L107:C17 - Se esperaba "como" para indicar el tipo. Se encontró: "decimal".
+  sintactico L110:C1 - No se permite declarar funciones dentro de otra función, ciclo o condicional.
+  sintactico L110:C24 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L115:C9 - Error en la cabecera del "para".
+  sintactico L120:C11 - Error en el "repetir".
+  sintactico L126:C12 - Error dentro de un "caso".
+  sintactico L130:C13 - Falta ")" para cerrar el paréntesis. Se encontró: ""B"".
+  sintactico L140:C1 - No se permite declarar funciones dentro de otra función, ciclo o condicional.
+  sintactico L140:C39 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L140:C39 - Bloque abierto con ">" en la línea 140 nunca fue cerrado con "<".
+  semantico L25:C5 - Uso de variable fantasma: '$edad' no ha sido declarada.
+  semantico L44:C5 - Uso de variable fantasma: '$cantidad' no ha sido declarada.
+  semantico L57:C5 - La función promete entregar 'vacio' pero está intentando retornar 'entero'.
+  semantico L111:C5 - La función promete entregar 'vacio' pero está intentando retornar 'entero'.
+  semantico L125:C8 - Uso de variable fantasma: '$cantidad' no ha sido declarada.

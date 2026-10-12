@@ -66,6 +66,11 @@ public final class InterpreteLeaf {
         return directorio;
     }
 
+    /** Mueve la sesión a otra carpeta desde fuera (como si se hubiera escrito {@code cd}); ignora lo que no sea una carpeta. */
+    public void cambiarDirectorio(Path nuevo) {
+        if (nuevo != null && Files.isDirectory(nuevo)) directorio = nuevo.toAbsolutePath().normalize();
+    }
+
     /** Nombres de todos los comandos y alias, para el Tab. */
     public List<String> nombresDeComandos() {
         return new ArrayList<>(new TreeSet<>(porNombre.keySet()));
@@ -157,6 +162,9 @@ public final class InterpreteLeaf {
                 a -> artefacto(a, "sintactico", "ast [archivo]", f -> texto(f, "No hay árbol sintáctico.")));
         agregar("simbolos", List.of(), "simbolos [archivo]", "Imprime la tabla de símbolos (análisis semántico).", "",
                 a -> artefacto(a, "semantico", "simbolos [archivo]", f -> tabla(f, "No hay tabla de símbolos.")));
+        agregar("cuadruplos", List.of(), "cuadruplos [archivo]", "Imprime la tabla de cuádruplos (código intermedio).", "",
+                a -> artefacto(a, "intermedio", "cuadruplos [archivo]",
+                        f -> tabla(f, "No hay cuádruplos: el programa tiene errores (usa 'errores') o el compilador aún no genera código intermedio.")));
         agregar("errores", List.of(), "errores [archivo]", "Compila todo y muestra solo el informe de errores.", "", this::errores);
         agregar("ejecutar", List.of(), "ejecutar", "Ejecuta el programa (todavía no disponible).", "",
                 a -> "Todavía no se puede ejecutar el programa: el compilador aún no genera código (llega con el hito M10).\n"

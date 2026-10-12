@@ -3,6 +3,8 @@ package leaf.ide.ui;
 import io.github.andrewauclair.moderndocking.Dockable;
 import io.github.andrewauclair.moderndocking.DockingRegion;
 import io.github.andrewauclair.moderndocking.app.Docking;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -11,6 +13,8 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JSplitPane;
+import javax.swing.Timer;
 
 /**
  * Arma cada {@link Perspectiva} con el docking: quita todos los paneles y los vuelve a colocar. Las fases se ubican
@@ -18,15 +22,22 @@ import java.util.List;
  */
 final class Disposiciones {
 
+    /** Fracción del ancho de la ventana principal que ocupa el explorador. */
+    private static final double ANCHO_EXPLORADOR = 0.16;
+
     private static final List<String> ANALISIS = List.of("lexico", "sintactico", "semantico");
+    /** Fases en pestañas de la ventana principal de Evaluación: el análisis y el código intermedio. */
+    private static final List<String> EVALUACION_PANTALLA_1 = List.of("lexico", "sintactico", "semantico", "intermedio");
     private static final List<String> SINTESIS = List.of("intermedio", "optimizacion", "objeto");
 
     private final PanelAcoplable editor;
+    private final PanelAcoplable explorador;
     private final List<PanelAcoplable> consolas; // Problemas, Leaf, Sistema
     private final GrupoFases fases;
 
-    Disposiciones(PanelAcoplable editor, List<PanelAcoplable> consolas, GrupoFases fases) {
+    Disposiciones(PanelAcoplable editor, PanelAcoplable explorador, List<PanelAcoplable> consolas, GrupoFases fases) {
         this.editor = editor;
+        this.explorador = explorador;
         this.consolas = List.copyOf(consolas);
         this.fases = fases;
     }
@@ -34,6 +45,7 @@ final class Disposiciones {
     /** Todos los paneles que existen, en el orden del menú Ver. */
     List<PanelAcoplable> todos() {
         List<PanelAcoplable> r = new ArrayList<>();
+        r.add(explorador);
         r.add(editor);
         for (int i = 0; i < fases.cantidad(); i++) r.add(fases.acoplable(i));
         r.addAll(consolas);
@@ -45,6 +57,7 @@ final class Disposiciones {
         for (PanelAcoplable panel : todos()) if (panel.acoplado()) Docking.undock(panel);
 
         Docking.dock(editor, principal);
+        Docking.dock(explorador, principal, DockingRegion.WEST, ANCHO_EXPLORADOR);
         switch (p) {
             case ESCRITURA -> {
                 consolasAbajo(principal, 0.30);
@@ -52,19 +65,58 @@ final class Disposiciones {
             case ANALISIS -> {
                 enPestanas(editor, DockingRegion.EAST, 0.55, ANALISIS);
                 consolasAbajo(principal, 0.30);
+                repartirColumnas(principal, 0.14, 0.32, 0.54);
             }
             case SINTESIS -> {
                 columnas(editor, SINTESIS, 0.75);
                 consolasAbajo(principal, 0.30);
+                // Al acoplar un panel junto a otro el docking los reparte por igual: se ajusta ya con la ventana armada.
+                repartirColumnas(principal, 0.14, 0.20, 0.36, 0.15, 0.15);
             }
             case EVALUACION -> {
-                enPestanas(editor, DockingRegion.EAST, 0.55, ANALISIS);
+                // Pantalla 1: el código y todo lo que se ve de la compilación hasta el código intermedio.
+                enPestanas(editor, DockingRegion.EAST, 0.55, EVALUACION_PANTALLA_1);
                 consolasAbajo(principal, 0.30);
-                ventanaAparte(List.of("intermedio", "optimizacion"), 1);
+                repartirColumnas(principal, 0.14, 0.30, 0.56);
+                ventanaAparte(List.of("optimizacion"), 1);
                 ventanaAparte(List.of("objeto"), 2);
             }
         }
         Docking.bringToFront(editor);
+    }
+
+    /**
+     * Fija el ancho de las columnas encadenadas (editor, fase, fase, fase…) como fracciones del total. Busca las
+     * divisiones horizontales de la ventana, de afuera hacia adentro, y ajusta su divisor cuando ya tienen tamaño.
+     */
+    private static void repartirColumnas(Window ventana, double... anchos) {
+        Timer t = new Timer(250, e -> {
+            Container actual = ventana;
+            double resto = 0;
+            for (double a : anchos) resto += a;
+            for (int i = 0; i < anchos.length - 1; i++) {
+                JSplitPane division = primeraDivisionHorizontal(actual);
+                if (division == null) return;
+                division.setDividerLocation(anchos[i] / resto);
+                division.validate(); // que la división de adentro ya tenga su tamaño nuevo antes de repartirla
+                resto -= anchos[i];
+                if (!(division.getRightComponent() instanceof Container derecha)) return;
+                actual = derecha;
+            }
+        });
+        t.setRepeats(false);
+        t.start();
+    }
+
+    private static JSplitPane primeraDivisionHorizontal(Container raiz) {
+        for (Component c : raiz.getComponents()) {
+            if (c instanceof JSplitPane d && d.getOrientation() == JSplitPane.HORIZONTAL_SPLIT) return d;
+            if (c instanceof Container hijo) {
+                JSplitPane r = primeraDivisionHorizontal(hijo);
+                if (r != null) return r;
+            }
+        }
+        return null;
     }
 
     /** Problemas, Leaf y Sistema como pestañas, a lo ancho de toda la ventana. */
@@ -78,7 +130,8 @@ final class Disposiciones {
                 Docking.dock(c, primera, DockingRegion.CENTER);
             }
         }
-        if (primera != null) Docking.bringToFront(primera);
+        // La terminal Sistema es la que se usa en las exposiciones: es la que queda al frente.
+        if (!consolas.isEmpty()) Docking.bringToFront(consolas.get(consolas.size() - 1));
     }
 
     /** Las fases indicadas (las que existan) como pestañas de un mismo grupo junto a {@code ancla}. */

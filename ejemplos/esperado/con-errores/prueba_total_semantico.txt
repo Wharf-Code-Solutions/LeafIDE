@@ -1,0 +1,22 @@
+lexico: CON_ERRORES
+  tabla "Tokens": 308 filas
+  tabla "Conteo por categoría": 8 filas
+sintactico: CON_ERRORES
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: CON_ERRORES
+  tabla "Tabla de símbolos": 21 filas
+  tabla "Traza de ámbitos": 65 filas
+intermedio: OMITIDA
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:
+  lexico L0:C0 - Parece que falta una comilla " de cierre en un texto o hay un símbolo inválido al final del archivo.
+  sintactico L55:C5 - No se permite declarar funciones dentro de otra función, ciclo o condicional.
+  sintactico L55:C42 - Se encontró un bloque "> ... <" huérfano.
+  sintactico L98:C30 - Falta "." al final de la instrucción antes de "definir".
+  sintactico L105:C5 - Falta ">" para abrir el bloque.
+  sintactico L106:C1 - Se encontró un "<" de más; revisa que no haya un bloque cerrado dos veces.
+  semantico L16:C9 - El identificador '$contadorGlobal' ya fue declarado previamente en este ámbito como variable.
+  semantico L17:C11 - El identificador '$PI' ya fue declarado previamente en este ámbito como constante.
+  semantico L27:C45 - El parámetro '$nombre' ya fue declarado previamente en este ámbito como parametro.
+  semantico L44:C17 - El identificador '$contadorGlobal' ya fue declarado previamente en este ámbito como variable.

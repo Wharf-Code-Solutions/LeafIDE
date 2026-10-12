@@ -41,7 +41,7 @@ class PerspectivasTest {
         };
     }
 
-    private static ProveedorCompilador proveedor() {
+    static ProveedorCompilador proveedor() {
         List<FaseCompilacion> fases = IDS.stream().map(PerspectivasTest::fase).toList();
         return new ProveedorCompilador() {
             @Override public String nombre() { return "Falso"; }
@@ -52,13 +52,13 @@ class PerspectivasTest {
         };
     }
 
-    private static <T> T enEdt(Supplier<T> s) throws Exception {
+    static <T> T enEdt(Supplier<T> s) throws Exception {
         List<T> r = new ArrayList<>();
         SwingUtilities.invokeAndWait(() -> r.add(s.get()));
         return r.get(0);
     }
 
-    private static VentanaPrincipal abrir(Path datos) throws Exception {
+    static VentanaPrincipal abrir(Path datos) throws Exception {
         return enEdt(() -> {
             VentanaPrincipal v = new VentanaPrincipal(proveedor(), 3_600_000, Map.of(), datos);
             v.setVisible(true); // sin mostrarse, los paneles aún no saben en qué ventana están
@@ -66,18 +66,21 @@ class PerspectivasTest {
         });
     }
 
-    private static void cerrar(VentanaPrincipal v) throws Exception {
+    static void cerrar(VentanaPrincipal v) throws Exception {
+        // Como en la vida real, la ventana ya está acomodada cuando se cierra; sin esto el docking aún no tiene
+        // listas sus raíces y no se puede guardar la disposición.
+        SwingUtilities.invokeAndWait(v::validate);
         SwingUtilities.invokeAndWait(v::dispose);
     }
 
-    private static boolean enPrincipal(VentanaPrincipal v, String id) {
+    static boolean enPrincipal(VentanaPrincipal v, String id) {
         for (int i = 0; i < v.fases.cantidad(); i++) {
             if (v.fases.idDe(i).equals(id)) return v.fases.acoplable(i).enVentanaPrincipal();
         }
         throw new IllegalArgumentException(id);
     }
 
-    private static boolean acoplada(VentanaPrincipal v, String id) {
+    static boolean acoplada(VentanaPrincipal v, String id) {
         for (int i = 0; i < v.fases.cantidad(); i++) {
             if (v.fases.idDe(i).equals(id)) return v.fases.acoplable(i).acoplado();
         }
@@ -104,33 +107,6 @@ class PerspectivasTest {
             assertFalse(enEdt(() -> acoplada(v, "lexico")));
         } finally {
             cerrar(v);
-        }
-    }
-
-    @Test
-    void evaluacionUsaTresVentanasYSeRestauraAlReiniciar(@TempDir Path datos) throws Exception {
-        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(), "sin pantalla");
-        VentanaPrincipal v = abrir(datos);
-        try {
-            SwingUtilities.invokeAndWait(() -> v.aplicarPerspectiva(Perspectiva.EVALUACION));
-            assertEquals(3, enEdt(() -> Docking.getRootPanels().size()), "principal + intermedio/optimización + objeto");
-            assertTrue(enEdt(() -> enPrincipal(v, "lexico")));
-            assertFalse(enEdt(() -> enPrincipal(v, "intermedio")));
-            assertTrue(enEdt(() -> acoplada(v, "intermedio") && acoplada(v, "optimizacion") && acoplada(v, "objeto")));
-        } finally {
-            cerrar(v); // guarda la disposición y los ajustes
-        }
-        assertTrue(Files.isRegularFile(datos.resolve("layouts").resolve("ultima.xml")));
-        assertTrue(Files.isRegularFile(datos.resolve("ajustes.properties")));
-
-        VentanaPrincipal otra = abrir(datos); // "reiniciar"
-        try {
-            assertEquals(3, enEdt(() -> Docking.getRootPanels().size()), "las 3 ventanas vuelven solas");
-            assertTrue(enEdt(() -> enPrincipal(otra, "lexico") && otra.dockLeaf.enVentanaPrincipal()));
-            assertFalse(enEdt(() -> enPrincipal(otra, "objeto")));
-            assertTrue(enEdt(() -> acoplada(otra, "objeto")));
-        } finally {
-            cerrar(otra);
         }
     }
 

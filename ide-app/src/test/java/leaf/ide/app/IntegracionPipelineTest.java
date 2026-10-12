@@ -28,7 +28,7 @@ class IntegracionPipelineTest {
 
         ProveedorCompilador proveedor = provOpt.get();
         assertEquals("Leaf", proveedor.nombre());
-        assertEquals("1.0", proveedor.version());
+        assertTrue(proveedor.version().matches("[0-9a-f]{7}"), "la versión es el commit importado: " + proveedor.version());
 
         EventBus bus = new EventBus();
         Pipeline pipeline = new Pipeline(proveedor, bus);

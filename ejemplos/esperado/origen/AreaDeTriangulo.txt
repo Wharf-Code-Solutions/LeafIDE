@@ -6,7 +6,9 @@ sintactico: OK
 semantico: OK
   tabla "Tabla de símbolos": 3 filas
   tabla "Traza de ámbitos": 6 filas
-intermedio: NO_IMPLEMENTADA
+intermedio: OK
+  tabla "Cuádruplos": 11 filas
+  tabla "Temporales": 3 filas
 optimizacion: NO_IMPLEMENTADA
 objeto: NO_IMPLEMENTADA
 diagnosticos:

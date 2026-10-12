@@ -14,6 +14,7 @@ public interface LeafVisitor
   public Object visit(ASTLeer node, Object data);
   public Object visit(ASTLiteral node, Object data);
   public Object visit(ASTExpresion node, Object data);
+  public Object visit(ASTLogica node, Object data);
   public Object visit(ASTNot node, Object data);
   public Object visit(ASTComparacion node, Object data);
   public Object visit(ASTAritmetica node, Object data);
@@ -26,6 +27,7 @@ public interface LeafVisitor
   public Object visit(ASTCondicional node, Object data);
   public Object visit(ASTSegun node, Object data);
   public Object visit(ASTCaso node, Object data);
+  public Object visit(ASTDefecto node, Object data);
   public Object visit(ASTMientras node, Object data);
   public Object visit(ASTHacerMientras node, Object data);
   public Object visit(ASTRepetir node, Object data);
@@ -42,4 +44,4 @@ public interface LeafVisitor
   public Object visit(ASTAgregar node, Object data);
   public Object visit(ASTQuitar node, Object data);
 }
-/* JavaCC - OriginalChecksum=33135c47106b6fbb9b10966f1952fc90 (do not edit this line) */
+/* JavaCC - OriginalChecksum=a2dab23e6e111345e45e8cda92a117fe (do not edit this line) */

@@ -1,5 +1,7 @@
 package generado;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class VisitanteSemantico extends LeafDefaultVisitor {
@@ -7,13 +9,32 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
     TablaSimbolos tabla = new TablaSimbolos();
     Stack<String> retornoEsperado = new Stack<>();
 
+    // [CÓDIGO INTERMEDIO] Resolución nodo -> símbolo. La llena este visitante mientras recorre
+    // el árbol y la consume GeneradorCodigoIntermedio para saber a qué declaración se refiere
+    // cada uso de una variable/función (misma variable en distintos ámbitos = símbolos distintos).
+    private final Map<Node, Simbolo> simbolosPorNodo = new IdentityHashMap<>();
+
+    // Contadores para validar "romper" / "continuar": cuántos ciclos y cuántos "segun" rodean al nodo actual.
+    private int profundidadCiclo = 0;
+    private int profundidadSegun = 0;
+
+    public Simbolo simboloDe(Node nodo) {
+        return simbolosPorNodo.get(nodo);
+    }
+
     public VisitanteSemantico() {
         // La tabla ya crea su ámbito "Global" automáticamente
     }
 
+    // Tipo de lo que solo se conoce al ejecutar (ingresar()); se acepta donde se pida cualquier tipo.
+    static final String TIPO_DINAMICO = "dinamico";
+
+    private static boolean esNumerico(String t) { return t.equals("entero") || t.equals("decimal"); }
+
     // MÉTODO: Valida la coerción implícita de entero a decimal
     private boolean sonTiposCompatibles(String esperado, String recibido) {
         if (esperado.equals(recibido)) return true;
+        if (recibido.equals(TIPO_DINAMICO)) return true;
         if (esperado.equals("decimal") && recibido.equals("entero")) return true;
         return false;
     }
@@ -42,10 +63,16 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
 
     @Override
     public Object visit(ASTBloque node, Object data) {
-        tabla.entrarBloque(tabla.obtenerAmbitoActual());
+        tabla.entrarBloque("Bloque");
         Object res = super.visit(node, data);
         tabla.salirBloque();
         return res;
+    }
+
+    /** Recorre el cuerpo de una función o de un para sin abrir un scope propio: comparte el del encabezado. */
+    private void visitarCuerpoSinScope(Node cuerpo, Object data) {
+        if (cuerpo instanceof ASTBloque) super.visit((ASTBloque) cuerpo, data);
+        else cuerpo.jjtAccept(this, data);
     }
 
     @Override
@@ -69,9 +96,9 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         }
 
         simFunc.tipoRetorno = tipoRetorno;
+        simbolosPorNodo.put(nodoId, simFunc); // [CÓDIGO INTERMEDIO]
 
-        tabla.resetearOffsetLocal();
-        tabla.entrarBloque(nombreFun);
+        tabla.entrarFuncion(nombreFun);
         retornoEsperado.push(tipoRetorno);
 
         for (int i = 1; i < numHijos - 2; i++) {
@@ -85,7 +112,7 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
             }
         }
 
-        node.jjtGetChild(numHijos - 1).jjtAccept(this, data);
+        visitarCuerpoSinScope(node.jjtGetChild(numHijos - 1), data);
 
         retornoEsperado.pop();
         tabla.salirBloque();
@@ -147,6 +174,8 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         if (insertado == null) {
             Simbolo existente = tabla.buscarLocal(nombreVar);
             reportar(nodoVar, "El identificador '" + nombreVar + "' ya fue declarado previamente en este ámbito como " + existente.categoria + ".");
+        } else {
+            simbolosPorNodo.put(nodoVar, insertado); // [CÓDIGO INTERMEDIO]
         }
 
         String tipoValor = (String) nodoExpresion.jjtAccept(this, data);
@@ -219,12 +248,17 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         String nombreVar = (String) nodoVar.jjtGetValue();
         int linea = nodoVar.jjtGetFirstToken() != null ? nodoVar.jjtGetFirstToken().beginLine : 0;
 
-        tabla.insertar(nombreVar, "entero", "variable", linea, 0);
+        Simbolo simVarPara = tabla.insertar(nombreVar, "entero", "variable", linea, 0);
+        if (simVarPara != null) simbolosPorNodo.put(nodoVar, simVarPara); // [CÓDIGO INTERMEDIO]
 
         int numHijos = node.jjtGetNumChildren();
+        profundidadCiclo++;
         for (int i = 1; i < numHijos; i++) {
-            node.jjtGetChild(i).jjtAccept(this, data);
+            Node hijo = node.jjtGetChild(i);
+            if (hijo instanceof ASTBloque) visitarCuerpoSinScope(hijo, data);
+            else hijo.jjtAccept(this, data);
         }
+        profundidadCiclo--;
 
         tabla.salirBloque();
         return null;
@@ -258,6 +292,8 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         if (insertado == null) {
             Simbolo existente = tabla.buscarLocal(nombreVar);
             reportar(nodoVar, "El parámetro '" + nombreVar + "' ya fue declarado previamente en este ámbito como " + existente.categoria + ".");
+        } else {
+            simbolosPorNodo.put(nodoVar, insertado); // [CÓDIGO INTERMEDIO]
         }
         return null;
     }
@@ -271,13 +307,18 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
             reportar(node, "Uso de variable fantasma: '" + nombreVar + "' no ha sido declarada.");
             return "error";
         }
+        simbolosPorNodo.put(node, simbolo); // [CÓDIGO INTERMEDIO]
         return simbolo.tipo;
     }
 
     @Override
     public Object visit(ASTLiteral node, Object data) {
         String val = (String) node.jjtGetValue();
-        if (val == null) return "arreglo";
+        if (val == null) {
+            // [CÓDIGO INTERMEDIO] Literal de arreglo: se visitan sus elementos para validarlos y resolverlos.
+            node.childrenAccept(this, data);
+            return "arreglo";
+        }
         if (val.startsWith("\"")) return "texto";
         if (val.equals("verdadero") || val.equals("falso")) return "logico";
         if (val.contains(".")) return "decimal";
@@ -291,6 +332,12 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         Simbolo simbolo = tabla.buscar(nombreVar);
 
         if (simbolo == null || simbolo.tipo == null) return "error";
+        simbolosPorNodo.put(nodoVar, simbolo); // [CÓDIGO INTERMEDIO]
+
+        // [CÓDIGO INTERMEDIO] Se visitan las expresiones de los índices (antes no se revisaban).
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            node.jjtGetChild(i).jjtAccept(this, data);
+        }
 
         int numIndices = node.jjtGetNumChildren() - 1;
         String tipoResultado = simbolo.tipo;
@@ -303,6 +350,8 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
 
     @Override
     public Object visit(ASTLongitud node, Object data) {
+        // [CÓDIGO INTERMEDIO] Se visita la variable (valida que exista y la resuelve).
+        node.jjtGetChild(0).jjtAccept(this, data);
         return "entero";
     }
 
@@ -325,7 +374,51 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         if (tipoIzq.equals("decimal") || tipoDer.equals("decimal") || "/".equals(operador)) {
             return "decimal";
         }
+        // Con un operando dinámico (ingresar) no se sabe si el resultado es entero o decimal
+        if (tipoIzq.equals(TIPO_DINAMICO) || tipoDer.equals(TIPO_DINAMICO)) return TIPO_DINAMICO;
         return "entero";
+    }
+
+    // ingresar(): su tipo se conoce solo al ejecutar
+    @Override
+    public Object visit(ASTLeer node, Object data) {
+        return TIPO_DINAMICO;
+    }
+
+    // -x : conserva el tipo numérico de x
+    @Override
+    public Object visit(ASTNegacion node, Object data) {
+        String t = (String) node.jjtGetChild(0).jjtAccept(this, data);
+        if (t == null || t.equals("error")) return "error";
+        if (!esNumerico(t) && !t.equals(TIPO_DINAMICO)) {
+            reportar(node, "Operación inválida: no se puede negar un valor de tipo '" + t + "'. Solo se permiten números.");
+            return "error";
+        }
+        return t;
+    }
+
+    // raiz x : x numérico; el resultado es decimal
+    @Override
+    public Object visit(ASTRaiz node, Object data) {
+        String t = (String) node.jjtGetChild(0).jjtAccept(this, data);
+        if (t == null || t.equals("error")) return "error";
+        if (!esNumerico(t) && !t.equals(TIPO_DINAMICO)) {
+            reportar(node, "Operación inválida: no se puede sacar la raíz de un valor de tipo '" + t + "'. Solo se permiten números.");
+            return "error";
+        }
+        return "decimal";
+    }
+
+    // no x : x lógico; el resultado es lógico
+    @Override
+    public Object visit(ASTNot node, Object data) {
+        String t = (String) node.jjtGetChild(0).jjtAccept(this, data);
+        if (t == null || t.equals("error")) return "error";
+        if (!t.equals("logico") && !t.equals(TIPO_DINAMICO)) {
+            reportar(node, "Operación lógica inválida: 'no' requiere un valor lógico, pero recibió '" + t + "'.");
+            return "error";
+        }
+        return "logico";
     }
 
     @Override
@@ -338,6 +431,9 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
         }
 
         // Validación de compatibilidad para comparaciones
+        // Un valor dinámico (ingresar) se compara con cualquier tipo; se valida al ejecutar
+        if (tipoIzq.equals(TIPO_DINAMICO) || tipoDer.equals(TIPO_DINAMICO)) return "logico";
+
         boolean sonIguales = tipoIzq.equals(tipoDer);
         boolean sonNumerosMezclados = (tipoIzq.equals("entero") || tipoIzq.equals("decimal")) &&
                 (tipoDer.equals("entero") || tipoDer.equals("decimal"));
@@ -363,6 +459,8 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
             return "error";
         }
 
+        simbolosPorNodo.put(nodoId, simFunc); // [CÓDIGO INTERMEDIO]
+
         int argsEnviados = node.jjtGetNumChildren() - 1;
 
         if (argsEnviados != simFunc.tiposParametros.size()) {
@@ -383,4 +481,99 @@ public class VisitanteSemantico extends LeafDefaultVisitor {
 
     @Override public Object visit(ASTExpresion node, Object data) { return node.jjtGetChild(0).jjtAccept(this, data); }
     @Override public Object visit(ASTMostrar node, Object data) { super.visit(node, data); return null; }
+
+    // ---- Validación de "romper" y "continuar" ----
+    // ---- Condiciones de si / sino si / mientras / hacer mientras: deben ser lógicas ----
+    private void validarCondicion(Node nodoCondicion, Object tipo, String estructura) {
+        if (!(tipo instanceof String)) return;
+        String t = (String) tipo;
+        if (t.equals("logico") || t.equals(TIPO_DINAMICO) || t.equals("error")) return;
+        reportar((SimpleNode) nodoCondicion, "La condición del \"" + estructura + "\" debe ser lógica, pero es de tipo '" + t + "'.");
+    }
+
+    /** Visita los hijos de la estructura; todo hijo que no sea un bloque es una condición. */
+    private Object visitarConCondiciones(SimpleNode node, Object data, String estructura) {
+        boolean primera = true;
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            Node hijo = node.jjtGetChild(i);
+            Object tipo = hijo.jjtAccept(this, data);
+            if (!(hijo instanceof ASTBloque)) {
+                validarCondicion(hijo, tipo, estructura.equals("si") && !primera ? "sino si" : estructura);
+                primera = false;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object visit(ASTCondicional node, Object data) {
+        return visitarConCondiciones(node, data, "si");
+    }
+
+    @Override
+    public Object visit(ASTMientras node, Object data) {
+        profundidadCiclo++;
+        Object r = visitarConCondiciones(node, data, "mientras");
+        profundidadCiclo--;
+        return r;
+    }
+
+    @Override
+    public Object visit(ASTHacerMientras node, Object data) {
+        profundidadCiclo++;
+        Object r = visitarConCondiciones(node, data, "hacer mientras");
+        profundidadCiclo--;
+        return r;
+    }
+
+    @Override
+    public Object visit(ASTRepetir node, Object data) {
+        profundidadCiclo++;
+        Object r = super.visit(node, data);
+        profundidadCiclo--;
+        return r;
+    }
+
+    @Override
+    public Object visit(ASTSegun node, Object data) {
+        profundidadSegun++;
+        Object r = super.visit(node, data);
+        profundidadSegun--;
+        return r;
+    }
+
+    @Override
+    public Object visit(ASTRomper node, Object data) {
+        if (profundidadCiclo == 0 && profundidadSegun == 0) {
+            reportar(node, "\"romper\" solo puede usarse dentro de un ciclo o de un \"segun\".");
+        }
+        return super.visit(node, data);
+    }
+
+    @Override
+    public Object visit(ASTContinuar node, Object data) {
+        if (profundidadCiclo == 0) {
+            reportar(node, "\"continuar\" solo puede usarse dentro de un ciclo.");
+        }
+        return super.visit(node, data);
+    }
+
+    // [CÓDIGO INTERMEDIO] Operadores lógicos Y / O (nodo #Logica de la gramática).
+    @Override
+    public Object visit(ASTLogica node, Object data) {
+        String tipoIzq = (String) node.jjtGetChild(0).jjtAccept(this, data);
+        String tipoDer = (String) node.jjtGetChild(2).jjtAccept(this, data);
+
+        if (tipoIzq == null || tipoDer == null || tipoIzq.equals("error") || tipoDer.equals("error")) {
+            return "error";
+        }
+        boolean izqOk = tipoIzq.equals("logico") || tipoIzq.equals(TIPO_DINAMICO);
+        boolean derOk = tipoDer.equals("logico") || tipoDer.equals(TIPO_DINAMICO);
+        if (!izqOk || !derOk) {
+            reportar(node, "Operación lógica inválida: 'Y' y 'O' requieren valores lógicos, pero recibió '"
+                    + tipoIzq + "' y '" + tipoDer + "'.");
+            return "error";
+        }
+        return "logico";
+    }
 }

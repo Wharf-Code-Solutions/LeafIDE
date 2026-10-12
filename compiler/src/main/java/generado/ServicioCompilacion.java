@@ -34,8 +34,9 @@ public final class ServicioCompilacion {
         }
 
         TablaSimbolos tabla = null;
+        VisitanteSemantico visitante = null;
         if (raiz != null) {
-            VisitanteSemantico visitante = new VisitanteSemantico();
+            visitante = new VisitanteSemantico();
             try {
                 raiz.jjtAccept(visitante, null);
             } catch (RuntimeException e) {
@@ -46,9 +47,22 @@ public final class ServicioCompilacion {
             tabla = visitante.tabla;
         }
 
+        // Igual que Leaf.main: el código intermedio solo se genera si el programa no tiene errores
+        GeneradorCodigoIntermedio generador = null;
+        String falla = null;
+        if (raiz != null && visitante != null && Leaf.errores.isEmpty()) {
+            try {
+                generador = new GeneradorCodigoIntermedio(visitante);
+                generador.generar(raiz);
+            } catch (RuntimeException e) {
+                generador = null;
+                falla = String.valueOf(e.getMessage() != null ? e.getMessage() : e);
+            }
+        }
+
         // Copia ordenada por línea: el IDE no debe depender de la lista estática
         ArrayList<String> ordenados = new ArrayList<>(Leaf.errores);
         ordenados.sort(Comparator.comparingInt(Leaf::extraerLinea));
-        return new ResultadoCompilacion(ordenados, raiz, tabla, tokenInicial);
+        return new ResultadoCompilacion(ordenados, raiz, tabla, tokenInicial, generador, falla);
     }
 }

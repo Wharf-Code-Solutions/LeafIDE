@@ -62,6 +62,16 @@ public final class TerminalSistema {
         return directorio;
     }
 
+    /**
+     * Mueve la terminal a otra carpeta desde fuera (por ejemplo, al abrir otra carpeta de trabajo).
+     * @return {@code false} si no se movió: hay un programa en marcha o la ruta no es una carpeta
+     */
+    public boolean cambiarDirectorio(Path nuevo) {
+        if (enEjecucion() || nuevo == null || !Files.isDirectory(nuevo)) return false;
+        directorio = nuevo.toAbsolutePath().normalize();
+        return true;
+    }
+
     public boolean enEjecucion() {
         Process p = proceso;
         return p != null && p.isAlive();

@@ -68,6 +68,7 @@ import leaf.ide.core.ArchivosLeaf;
 import leaf.ide.core.EjecutorCompilacion;
 import leaf.ide.core.EventBus;
 import leaf.ide.core.Pipeline;
+import leaf.ide.core.consola.ComandoJavaLeaf;
 import leaf.ide.core.consola.ContextoComandos;
 import leaf.ide.core.consola.ErrorDeComando;
 import leaf.ide.core.consola.InterpreteLeaf;
@@ -114,11 +115,20 @@ final class VentanaPrincipal extends JFrame {
     private Perspectiva perspectiva = Perspectiva.ANALISIS;
     private boolean cerrada;
 
+    /** La carpeta que se abrió (el «proyecto»); {@code null} si todavía no se eligió ninguna. */
+    private Path carpetaTrabajo;
+    final PanelExplorador explorador = new PanelExplorador(this::abrirDesdeElExplorador);
+    PanelAcoplable dockExplorador;
+
     // Modo demostración: opcional, siempre apagado al abrir el IDE.
     private final BarraDemostracion barraDemo = new BarraDemostracion(this::mostrarPasoDeDemostracion);
     private final JToggleButton botonDemo = new JToggleButton("Demostración");
     private final JCheckBoxMenuItem menuDemo = new JCheckBoxMenuItem("Modo demostración");
     private boolean demoActiva;
+
+    /** Lo que se ejecuta con {@code java generado.Leaf archivo} en la terminal Sistema también se analiza aquí. */
+    private boolean sincronizarTerminal = true;
+    private final JCheckBoxMenuItem menuSincronizar = new JCheckBoxMenuItem("Sincronizar la terminal Sistema con el IDE");
 
     final JLabel posicion = new JLabel("Ln 1, Col 1");
     private final JLabel archivoEtiqueta = new JLabel();
@@ -162,7 +172,8 @@ final class VentanaPrincipal extends JFrame {
         this.temporizador = new Timer(retardoEnVivoMs, e -> analizarEnVivo());
         temporizador.setRepeats(false);
 
-        Path carpetaInicial = Path.of("").toAbsolutePath();
+        carpetaTrabajo = almacen == null ? null : almacen.leer().carpetaTrabajoExistente().orElse(null);
+        Path carpetaInicial = carpetaTrabajo != null ? carpetaTrabajo : Path.of("").toAbsolutePath();
         this.interprete = new InterpreteLeaf(new ContextoVentana(), carpetaInicial);
         this.hiloDeComandos = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "HiloDeComandosLeaf");
@@ -195,7 +206,8 @@ final class VentanaPrincipal extends JFrame {
         dockProblemas = new PanelAcoplable("problemas", "Problemas", problemas, true);
         dockLeaf = new PanelAcoplable("consola.leaf", "Leaf", terminalLeaf, true);
         dockSistema = new PanelAcoplable("consola.sistema", "Sistema", terminalSistema, true);
-        disposiciones = new Disposiciones(dockEditor, List.of(dockProblemas, dockLeaf, dockSistema), fases);
+        dockExplorador = new PanelAcoplable("explorador", "Explorador", explorador, true);
+        disposiciones = new Disposiciones(dockEditor, dockExplorador, List.of(dockProblemas, dockLeaf, dockSistema), fases);
 
         setLayout(new BorderLayout());
         barraDemo.setVisible(false);
@@ -241,7 +253,12 @@ final class VentanaPrincipal extends JFrame {
             if (!sistema.enEjecucion() && linea.strip().equalsIgnoreCase("cls")) {
                 terminalSistema.limpiar();
             } else {
+                boolean esComandoNuevo = !sistema.enEjecucion(); // si hay un programa en marcha, es su entrada
+                Path carpetaAntes = sistema.directorio();
                 sistema.enviar(linea);
+                if (esComandoNuevo && sincronizarTerminal) {
+                    ComandoJavaLeaf.reconocer(linea, carpetaAntes).ifPresent(this::sincronizarConLaTerminal);
+                }
             }
             refrescarPromptDelSistema();
         });
@@ -296,6 +313,8 @@ final class VentanaPrincipal extends JFrame {
         JMenu archivo = new JMenu("Archivo");
         archivo.add(item("Nuevo", KeyStroke.getKeyStroke(KeyEvent.VK_N, ATAJO), this::nuevo));
         archivo.add(item("Abrir…", KeyStroke.getKeyStroke(KeyEvent.VK_O, ATAJO), this::abrir));
+        archivo.add(item("Abrir carpeta…",
+                KeyStroke.getKeyStroke(KeyEvent.VK_O, ATAJO | InputEvent.SHIFT_DOWN_MASK), this::elegirCarpeta));
         archivo.add(item("Guardar", KeyStroke.getKeyStroke(KeyEvent.VK_S, ATAJO), this::guardar));
         archivo.add(item("Guardar como…",
                 KeyStroke.getKeyStroke(KeyEvent.VK_S, ATAJO | InputEvent.SHIFT_DOWN_MASK), this::guardarComo));
@@ -305,6 +324,13 @@ final class VentanaPrincipal extends JFrame {
         JMenu compilar = new JMenu("Compilar");
         compilar.add(item("Compilar", KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), this::compilar));
         compilar.addSeparator();
+        menuSincronizar.setSelected(sincronizarTerminal);
+        menuSincronizar.setToolTipText("Al ejecutar java generado.Leaf <archivo> en la terminal Sistema, el IDE abre ese archivo y muestra sus fases");
+        menuSincronizar.addActionListener(e -> {
+            sincronizarTerminal = menuSincronizar.isSelected();
+            guardarSoloLosAjustes();
+        });
+        compilar.add(menuSincronizar);
         menuDemo.addActionListener(e -> activarDemostracion(menuDemo.isSelected()));
         compilar.add(menuDemo);
         compilar.add(item("Demostración: paso", KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0),
@@ -395,6 +421,9 @@ final class VentanaPrincipal extends JFrame {
     /** Aplica los ajustes guardados y coloca los paneles: la última disposición, o la perspectiva inicial. */
     private void aplicarAjustes() {
         Ajustes a = almacen == null ? Ajustes.porDefecto() : almacen.leer();
+        explorador.fijarRaiz(carpetaTrabajo);
+        sincronizarTerminal = a.sincronizarTerminal();
+        menuSincronizar.setSelected(sincronizarTerminal);
         enVivo.setSelected(a.analisisEnVivo());
         resaltado.setSelected(a.resaltado());
         editor.activarResaltado(a.resaltado());
@@ -614,12 +643,100 @@ final class VentanaPrincipal extends JFrame {
         if (!confirmarDescarte()) return;
         JFileChooser selector = selectorArchivos();
         if (selector.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
-        Path ruta = selector.getSelectedFile().toPath();
+        abrirArchivo(selector.getSelectedFile().toPath());
+    }
+
+    /** Carga el archivo en el editor (la pregunta por cambios sin guardar ya se hizo). */
+    private void abrirArchivo(Path ruta) {
         try {
             cargarArchivo(ruta);
         } catch (IOException e) {
             error("No se pudo abrir el archivo:\n" + ruta + "\n\n" + e.getMessage());
         }
+    }
+
+    private void abrirDesdeElExplorador(Path ruta) {
+        if (confirmarDescarte()) abrirArchivo(ruta);
+    }
+
+    // ---------- terminal sincronizada ----------
+
+    boolean sincronizarTerminal() {
+        return sincronizarTerminal;
+    }
+
+    void sincronizarTerminal(boolean activa) {
+        sincronizarTerminal = activa;
+        menuSincronizar.setSelected(activa);
+    }
+
+    /**
+     * La terminal Sistema acaba de ejecutar {@code java generado.Leaf <archivo>}: el IDE abre ese mismo archivo en el
+     * editor y muestra sus fases (o reinicia la demostración con él). Si el archivo no existe, la terminal ya mostró
+     * su propio error y aquí no se cambia nada.
+     */
+    void sincronizarConLaTerminal(Path archivo) {
+        if (!Files.isRegularFile(archivo)) return;
+        boolean yaAbierto = archivo.equals(archivoActual != null ? archivoActual.toAbsolutePath().normalize() : null)
+                && !editor.modificado();
+        if (!yaAbierto) {
+            // La terminal ejecuta el archivo del disco: el editor debe tener exactamente ese texto.
+            if (!confirmarDescarte()) return;
+            try {
+                cargarArchivo(archivo);
+            } catch (IOException e) {
+                error("No se pudo abrir el archivo:\n" + archivo + "\n\n" + e.getMessage());
+                return;
+            }
+        }
+        estado.setText("Terminal: se analizó " + archivo.getFileName());
+        temporizador.stop();
+        if (demoActiva) iniciarDemostracion();
+        else analizarSinDemostracion();
+    }
+
+    // ---------- carpeta de trabajo ----------
+
+    Path carpetaTrabajo() {
+        return carpetaTrabajo;
+    }
+
+    /** Carpeta actual de la terminal Sistema (para las pruebas). */
+    Path directorioDelSistema() {
+        return sistema.directorio();
+    }
+
+    /** Carpeta actual de la consola Leaf (para las pruebas). */
+    Path directorioDeLeaf() {
+        return interprete.directorio();
+    }
+
+    private void elegirCarpeta() {
+        JFileChooser selector = new JFileChooser(carpetaTrabajo != null ? carpetaTrabajo.toFile() : null);
+        selector.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        selector.setDialogTitle("Abrir carpeta de trabajo");
+        if (selector.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) abrirCarpeta(selector.getSelectedFile().toPath());
+    }
+
+    /**
+     * Primera ejecución (o si la carpeta guardada ya no existe): ofrece elegir la carpeta de trabajo. Si se cancela,
+     * las consolas siguen donde se lanzó el IDE y se vuelve a preguntar la próxima vez.
+     */
+    void pedirCarpetaSiHaceFalta() {
+        if (almacen != null && carpetaTrabajo == null) elegirCarpeta();
+    }
+
+    /** Fija la carpeta de trabajo: explorador, consolas, diálogos y ajustes guardados. */
+    void abrirCarpeta(Path carpeta) {
+        if (carpeta == null || !Files.isDirectory(carpeta)) return;
+        carpetaTrabajo = carpeta.toAbsolutePath().normalize();
+        explorador.fijarRaiz(carpetaTrabajo);
+        interprete.cambiarDirectorio(carpetaTrabajo);
+        boolean movida = sistema.cambiarDirectorio(carpetaTrabajo);
+        refrescarPromptDelSistema();
+        estado.setText(movida ? "Carpeta de trabajo: " + carpetaTrabajo
+                : "Carpeta de trabajo: " + carpetaTrabajo + " (la terminal Sistema tiene un programa en marcha y no se movió)");
+        guardarSoloLosAjustes();
     }
 
     private void cargarArchivo(Path ruta) throws IOException {
@@ -662,7 +779,9 @@ final class VentanaPrincipal extends JFrame {
     }
 
     private JFileChooser selectorArchivos() {
-        JFileChooser selector = new JFileChooser(archivoActual != null ? archivoActual.getParent().toFile() : null);
+        File inicio = archivoActual != null ? archivoActual.getParent().toFile()
+                : carpetaTrabajo != null ? carpetaTrabajo.toFile() : null;
+        JFileChooser selector = new JFileChooser(inicio);
         selector.setFileFilter(new FileNameExtensionFilter("Programas Leaf (*.leaf, *.txt)", "leaf", "txt"));
         return selector;
     }
@@ -701,16 +820,31 @@ final class VentanaPrincipal extends JFrame {
         super.dispose();
     }
 
+    private Ajustes ajustesActuales() {
+        return new Ajustes(oscuro, enVivo.isSelected(), resaltado.isSelected(), perspectiva.name(),
+                carpetaTrabajo == null ? "" : carpetaTrabajo.toString(), sincronizarTerminal);
+    }
+
+    /** Los ajustes (sin la disposición de los paneles), por ejemplo al abrir otra carpeta. */
+    private void guardarSoloLosAjustes() {
+        if (almacen == null) return;
+        try {
+            almacen.guardar(ajustesActuales());
+        } catch (IOException | RuntimeException e) {
+            // no poder guardar las preferencias no debe molestar al usuario
+        }
+    }
+
     /** Antes de cerrar nada: la disposición (con sus ventanas separadas) y las preferencias. */
     private void guardarAjustes() {
         if (almacen == null) return;
+        guardarSoloLosAjustes(); // primero las preferencias: que falle la disposición no debe hacerlas perder
         try {
             Files.createDirectories(carpetaDisposiciones());
             LayoutPersistence.saveLayoutToFile(carpetaDisposiciones().resolve(ULTIMA_DISPOSICION).toFile(),
                     DockingState.getApplicationLayout());
-            almacen.guardar(new Ajustes(oscuro, enVivo.isSelected(), resaltado.isSelected(), perspectiva.name()));
         } catch (IOException | DockingLayoutException | RuntimeException e) {
-            // no poder guardar las preferencias no debe impedir cerrar
+            // sin disposición guardada, al abrir se parte de la última perspectiva elegida
         }
     }
 
