@@ -12,6 +12,9 @@ Muestra a la vez el código, una consola de comandos y las fases de compilación
 - **Paneles acoplables** y **perspectivas** (Escritura, Análisis, Síntesis y Evaluación de 3 pantallas); la disposición y los ajustes se guardan en `%USERPROFILE%\.leafide`.
 - **Modo demostración** (opcional): reproduce la compilación paso a paso, fase por fase.
 
+## Manual de usuario
+Todo lo que hace el IDE y cómo usarlo está en **[MANUAL.md](MANUAL.md)**.
+
 ## Requisitos
 - Windows 11
 - JDK 26 (`java -version` debe mostrar la versión 26)

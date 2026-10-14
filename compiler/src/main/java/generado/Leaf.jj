@@ -1056,7 +1056,7 @@ void comparacion() : {}
     | expresion_aritmetica()
 }
 
-/* Jerarqu\u00eda aritm\u00e9tica (de menor a mayor precedencia), como indica el manual:
+/* Jerarqu\u00eda aritm\u00e9tica (de menor a mayor precedencia):
  *   suma/resta  <  multiplicaci\u00f3n/divisi\u00f3n/m\u00f3dulo  <  potencia/ra\u00edz en\u00e9sima
  * La potencia y la ra\u00edz en\u00e9sima asocian a la derecha. Todos generan #Aritmetica(3). */
 void expresion_aritmetica() : {}

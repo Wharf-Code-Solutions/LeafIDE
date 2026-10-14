@@ -62,11 +62,11 @@ class FaseIntermedioTest {
                 r.artefactos().stream().map(a -> a.titulo()).toList());
 
         ArtefactoTabla t = cuadruplos(r);
-        assertEquals(List.of("#", "Operación", "Arg 1", "Arg 2", "Resultado"), t.columnas());
-        assertEquals(List.of("0", "main", "", "", "main"), t.filas().get(0).celdas());
-        assertEquals(List.of("1", "=", "2", "", "$a"), t.filas().get(1).celdas());
+        assertEquals(List.of("Operación", "Arg 1", "Arg 2", "Resultado"), t.columnas());
+        assertEquals(List.of("main", "", "", "main"), t.filas().get(0).celdas());
+        assertEquals(List.of("=", "2", "", "$a"), t.filas().get(1).celdas());
         Fila ultima = t.filas().get(t.filas().size() - 1);
-        assertEquals("halt", ultima.celdas().get(1));
+        assertEquals("halt", ultima.celdas().get(0));
 
         String texto = ((ArtefactoTexto) r.artefactos().get(1)).contenido();
         assertTrue(texto.startsWith("main:\n"), texto);
@@ -84,13 +84,23 @@ class FaseIntermedioTest {
         assertEquals(Estado.OK, r.estado());
         List<Fila> filas = cuadruplos(r).filas();
         assertEquals("Programa principal", filas.get(0).grupo());
-        Fila func = filas.stream().filter(f -> f.celdas().get(1).equals("func")).findFirst().orElseThrow();
+        Fila func = filas.stream().filter(f -> f.celdas().get(0).equals("func")).findFirst().orElseThrow();
         assertEquals("Función doble", func.grupo());
-        Fila fin = filas.stream().filter(f -> f.celdas().get(1).equals("endfunc")).findFirst().orElseThrow();
+        Fila fin = filas.stream().filter(f -> f.celdas().get(0).equals("endfunc")).findFirst().orElseThrow();
         assertEquals("Función doble", fin.grupo());
         // Las que están en main (antes de halt) siguen en el principal.
-        Fila halt = filas.stream().filter(f -> f.celdas().get(1).equals("halt")).findFirst().orElseThrow();
+        Fila halt = filas.stream().filter(f -> f.celdas().get(0).equals("halt")).findFirst().orElseThrow();
         assertEquals("Programa principal", halt.grupo());
+    }
+
+    @Test
+    void guardarUnaDivisionEnteraEnUnEnteroTruncaConAEntero() {
+        ResultadoFase r = ejecutar("definir $x como entero con valor de 7 / 2.\nmostrar($x).");
+
+        assertEquals(Estado.OK, r.estado(), r.diagnosticos().toString());
+        List<String> operaciones = cuadruplos(r).filas().stream().map(f -> f.celdas().get(0)).toList();
+        assertTrue(operaciones.contains("a_entero"), operaciones.toString());
+        assertTrue(((ArtefactoTexto) r.artefactos().get(1)).contenido().contains("(entero)"));
     }
 
     @Test

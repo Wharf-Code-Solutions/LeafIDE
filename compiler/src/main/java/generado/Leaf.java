@@ -978,7 +978,7 @@ if (jjtc002) {
     }
 }
 
-/* Jerarquía aritmética (de menor a mayor precedencia), como indica el manual:
+/* Jerarquía aritmética (de menor a mayor precedencia):
  *   suma/resta  <  multiplicación/división/módulo  <  potencia/raíz enésima
  * La potencia y la raíz enésima asocian a la derecha. Todos generan #Aritmetica(3). */
   final public void expresion_aritmetica() throws ParseException {

@@ -51,7 +51,7 @@ class EjemplosDoradosTest {
                 }));
             }
         }
-        assertEquals(26, pruebas.size(), "Se esperaban 26 ejemplos");
+        assertEquals(27, pruebas.size(), "Se esperaban 27 ejemplos");
         return pruebas;
     }
 

@@ -1,0 +1,14 @@
+lexico: OK
+  tabla "Tokens": 23 filas
+  tabla "Conteo por categoría": 7 filas
+sintactico: OK
+  arbol "Árbol sintáctico (AST)": raíz Programa
+semantico: OK
+  tabla "Tabla de símbolos": 3 filas
+  tabla "Traza de ámbitos": 5 filas
+intermedio: OK
+  tabla "Cuádruplos": 6 filas
+  tabla "Temporales": 1 filas
+optimizacion: NO_IMPLEMENTADA
+objeto: NO_IMPLEMENTADA
+diagnosticos:

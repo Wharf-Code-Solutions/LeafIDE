@@ -20,12 +20,12 @@ import leaf.api.Severidad;
 
 /**
  * Código intermedio en cuádruplos. Solo hay resultado si el programa no tiene errores (como en {@code Leaf.main}); con
- * errores el pipeline la omite porque la semántica terminó con errores. Artefactos: la tabla de cuádruplos (agrupada
+ * errores el pipeline la omite porque la semántica terminó con errores. Artefactos: la tabla de cuádruplos de 4 columnas, como la imprime el compilador (agrupada
  * por programa principal y por función), la forma de tres direcciones y el tipo de cada temporal.
  */
 final class FaseIntermedio implements FaseCompilacion {
 
-    static final List<String> COLUMNAS_CUADRUPLOS = List.of("#", "Operación", "Arg 1", "Arg 2", "Resultado");
+    static final List<String> COLUMNAS_CUADRUPLOS = List.of("Operación", "Arg 1", "Arg 2", "Resultado");
     static final List<String> COLUMNAS_TEMPORALES = List.of("Temporal", "Tipo");
     private static final String GRUPO_PRINCIPAL = "Programa principal";
 
@@ -61,7 +61,7 @@ final class FaseIntermedio implements FaseCompilacion {
             if (c.op == Cuadrupla.Op.FUNC_INICIO) grupo = "Función " + c.resultado;
             String[] columnas = c.columnas();
             filas.add(new Fila("q" + i,
-                    List.of(String.valueOf(i), columnas[0], columnas[1], columnas[2], columnas[3]),
+                    List.of(columnas[0], columnas[1], columnas[2], columnas[3]),
                     Rango.DESCONOCIDO, List.of(), grupo));
             if (c.op == Cuadrupla.Op.FUNC_FIN) grupo = GRUPO_PRINCIPAL;
         }
