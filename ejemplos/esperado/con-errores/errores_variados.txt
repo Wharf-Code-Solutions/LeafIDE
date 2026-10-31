@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 1 filas
   tabla "Traza de ámbitos": 3 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   sintactico L4:C19 - Falta ")" para cerrar el paréntesis. Se encontró: "$PI".

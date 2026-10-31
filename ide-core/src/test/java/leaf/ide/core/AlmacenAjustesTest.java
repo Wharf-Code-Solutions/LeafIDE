@@ -12,6 +12,14 @@ import org.junit.jupiter.api.io.TempDir;
 class AlmacenAjustesTest {
 
     @Test
+    void sabeSiYaHayAjustesGuardados(@TempDir Path dir) throws IOException {
+        AlmacenAjustes almacen = new AlmacenAjustes(dir);
+        assertEquals(false, almacen.hayAjustesGuardados());
+        almacen.guardar(Ajustes.porDefecto());
+        assertEquals(true, almacen.hayAjustesGuardados());
+    }
+
+    @Test
     void sinArchivoUsaLosValoresPorDefecto(@TempDir Path dir) {
         assertEquals(Ajustes.porDefecto(), new AlmacenAjustes(dir.resolve("nada")).leer());
     }
@@ -30,6 +38,19 @@ class AlmacenAjustesTest {
         assertEquals(true, almacen.leer().sincronizarTerminal());
         almacen.guardar(Ajustes.porDefecto().conSincronizarTerminal(false));
         assertEquals(false, almacen.leer().sincronizarTerminal());
+    }
+
+    @Test
+    void porDefectoSeUsaElCompiladorDeCLeafYSeRecuerdaOtraEleccion(@TempDir Path dir) throws IOException {
+        AlmacenAjustes almacen = new AlmacenAjustes(dir);
+        Ajustes inicial = almacen.leer();
+        assertEquals(true, inicial.compiladorDeCarpeta());
+        assertEquals(Path.of("C:", "Leaf"), inicial.rutaCompilador());
+        Path otra = dir.resolve("MiLeaf");
+        almacen.guardar(inicial.conCompilador(false, otra));
+        Ajustes leido = almacen.leer();
+        assertEquals(false, leido.compiladorDeCarpeta());
+        assertEquals(otra.toAbsolutePath().normalize(), leido.rutaCompilador());
     }
 
     @Test

@@ -67,7 +67,10 @@ class EjemplosDoradosTest {
         } else {
             assertEquals(Estado.OMITIDA, intermedio.estado(), "con errores no se genera código intermedio");
         }
-        for (String futura : List.of("optimizacion", "objeto")) {
+        // La optimización sigue al código intermedio: existe exactamente cuando él existe.
+        ResultadoFase optimizacion = fases.stream().filter(f -> f.faseId().equals("optimizacion")).findFirst().orElseThrow();
+        assertEquals(intermedio.estado(), optimizacion.estado(), "la optimización acompaña al código intermedio");
+        for (String futura : List.of("objeto")) {
             assertEquals(Estado.NO_IMPLEMENTADA, fases.stream().filter(f -> f.faseId().equals(futura)).findFirst()
                     .orElseThrow().estado(), "fase futura " + futura);
         }

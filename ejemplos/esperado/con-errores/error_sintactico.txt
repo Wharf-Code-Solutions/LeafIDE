@@ -7,7 +7,7 @@ semantico: OK
   tabla "Tabla de símbolos": 1 filas
   tabla "Traza de ámbitos": 4 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   sintactico L3:C21 - Bloque abierto con ">" en la línea 3 nunca fue cerrado con "<".

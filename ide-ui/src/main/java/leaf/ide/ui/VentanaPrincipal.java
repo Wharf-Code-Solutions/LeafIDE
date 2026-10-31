@@ -68,6 +68,7 @@ import leaf.ide.core.ArchivosLeaf;
 import leaf.ide.core.EjecutorCompilacion;
 import leaf.ide.core.EventBus;
 import leaf.ide.core.Pipeline;
+import leaf.ide.core.SelectorCompilador;
 import leaf.ide.core.consola.ComandoJavaLeaf;
 import leaf.ide.core.consola.ContextoComandos;
 import leaf.ide.core.consola.ErrorDeComando;
@@ -128,6 +129,11 @@ final class VentanaPrincipal extends JFrame {
 
     /** Lo que se ejecuta con {@code java generado.Leaf archivo} en la terminal Sistema también se analiza aquí. */
     private boolean sincronizarTerminal = true;
+
+    /** Barra de estado: qué compilador se está usando (el de la carpeta, con su commit, o la copia del IDE). */
+    private final JLabel etiquetaCompilador = new JLabel();
+    private final JRadioButtonMenuItem menuCompiladorCarpeta = new JRadioButtonMenuItem();
+    private final JRadioButtonMenuItem menuCompiladorCopia = new JRadioButtonMenuItem("Copia del IDE (respaldo)");
     private final JCheckBoxMenuItem menuSincronizar = new JCheckBoxMenuItem("Sincronizar la terminal Sistema con el IDE");
 
     final JLabel posicion = new JLabel("Ln 1, Col 1");
@@ -302,7 +308,8 @@ final class VentanaPrincipal extends JFrame {
         izquierda.add(archivoEtiqueta, BorderLayout.CENTER);
         p.add(izquierda, BorderLayout.WEST);
         p.add(estado, BorderLayout.CENTER);
-        p.add(new JLabel("UTF-8 · " + proveedor.nombre() + " " + proveedor.version() + " · API " + proveedor.apiVersion()),
+        actualizarEtiquetaCompilador();
+        p.add(etiquetaCompilador,
                 BorderLayout.EAST);
         return p;
     }
@@ -331,6 +338,7 @@ final class VentanaPrincipal extends JFrame {
             guardarSoloLosAjustes();
         });
         compilar.add(menuSincronizar);
+        if (proveedor instanceof SelectorCompilador selector) compilar.add(menuCompilador(selector));
         menuDemo.addActionListener(e -> activarDemostracion(menuDemo.isSelected()));
         compilar.add(menuDemo);
         compilar.add(item("Demostración: paso", KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0),
@@ -556,6 +564,7 @@ final class VentanaPrincipal extends JFrame {
 
     /** Problemas, subrayado del editor y estado, a partir de los diagnósticos de todas las fases. */
     private void mostrarDiagnosticos(List<ResultadoFase> resultados) {
+        actualizarEtiquetaCompilador();
         List<Diagnostico> diagnosticos = new ArrayList<>();
         for (ResultadoFase r : resultados) diagnosticos.addAll(r.diagnosticos());
         problemas.mostrar(diagnosticos);
@@ -657,6 +666,62 @@ final class VentanaPrincipal extends JFrame {
 
     private void abrirDesdeElExplorador(Path ruta) {
         if (confirmarDescarte()) abrirArchivo(ruta);
+    }
+
+    // ---------- qué compilador se usa ----------
+
+    /** Compilar → Compilador: el de la carpeta (por defecto C:\Leaf) o la copia del IDE, y elegir la carpeta. */
+    private JMenu menuCompilador(SelectorCompilador selector) {
+        JMenu m = new JMenu("Compilador");
+        ButtonGroup grupo = new ButtonGroup();
+        grupo.add(menuCompiladorCarpeta);
+        grupo.add(menuCompiladorCopia);
+        menuCompiladorCarpeta.setToolTipText("Usa los .class del compilador base, como java generado.Leaf en esa carpeta");
+        menuCompiladorCopia.setToolTipText("Usa el compilador que el IDE lleva dentro (no refleja los cambios de la carpeta)");
+        menuCompiladorCarpeta.addActionListener(e -> cambiarCompilador(selector, true, selector.carpeta()));
+        menuCompiladorCopia.addActionListener(e -> cambiarCompilador(selector, false, null));
+        m.add(menuCompiladorCarpeta);
+        m.add(menuCompiladorCopia);
+        m.addSeparator();
+        m.add(item("Elegir carpeta del compilador…", null, () -> elegirCarpetaCompilador(selector)));
+        refrescarMenuCompilador(selector);
+        return m;
+    }
+
+    private void refrescarMenuCompilador(SelectorCompilador selector) {
+        menuCompiladorCarpeta.setText("Compilador base de " + selector.carpeta());
+        (selector.usaCarpeta() ? menuCompiladorCarpeta : menuCompiladorCopia).setSelected(true);
+    }
+
+    private void elegirCarpetaCompilador(SelectorCompilador selector) {
+        JFileChooser s = new JFileChooser(selector.carpeta().toFile());
+        s.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        s.setDialogTitle("Carpeta del compilador (la que tiene src\\generado, por ejemplo C:\\Leaf)");
+        if (s.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) cambiarCompilador(selector, true, s.getSelectedFile().toPath());
+    }
+
+    /** Cambia de compilador, lo recuerda y vuelve a analizar lo que hay en el editor con el nuevo. */
+    void cambiarCompilador(SelectorCompilador selector, boolean deCarpeta, Path carpeta) {
+        if (deCarpeta) selector.usarCarpeta(carpeta != null ? carpeta : selector.carpeta());
+        else selector.usarCopiaDelIde();
+        refrescarMenuCompilador(selector);
+        actualizarEtiquetaCompilador();
+        guardarSoloLosAjustes();
+        estado.setText("Compilador: " + selector.descripcion());
+        if (demoActiva) iniciarDemostracion();
+        else analizarSinDemostracion();
+    }
+
+    private void actualizarEtiquetaCompilador() {
+        etiquetaCompilador.setText("UTF-8 · " + proveedor.nombre() + " " + proveedor.version() + " · API " + proveedor.apiVersion());
+        etiquetaCompilador.setToolTipText(proveedor instanceof SelectorCompilador s && s.usaCarpeta()
+                ? "Compilador base: los .class de la carpeta (como java generado.Leaf ahí). Cámbialo en Compilar → Compilador."
+                : "Compilador que el IDE lleva dentro. Cámbialo en Compilar → Compilador.");
+    }
+
+    /** Texto de la barra de estado sobre el compilador (para las pruebas). */
+    String textoCompilador() {
+        return etiquetaCompilador.getText();
     }
 
     // ---------- terminal sincronizada ----------
@@ -821,8 +886,9 @@ final class VentanaPrincipal extends JFrame {
     }
 
     private Ajustes ajustesActuales() {
-        return new Ajustes(oscuro, enVivo.isSelected(), resaltado.isSelected(), perspectiva.name(),
+        Ajustes a = new Ajustes(oscuro, enVivo.isSelected(), resaltado.isSelected(), perspectiva.name(),
                 carpetaTrabajo == null ? "" : carpetaTrabajo.toString(), sincronizarTerminal);
+        return proveedor instanceof SelectorCompilador s ? a.conCompilador(s.usaCarpeta(), s.carpeta()) : a;
     }
 
     /** Los ajustes (sin la disposición de los paneles), por ejemplo al abrir otra carpeta. */

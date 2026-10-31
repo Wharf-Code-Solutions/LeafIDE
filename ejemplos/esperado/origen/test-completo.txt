@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 30 filas
   tabla "Traza de ámbitos": 107 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   sintactico L189:C44 - Falta "." al final de la instrucción antes de "mostrar".

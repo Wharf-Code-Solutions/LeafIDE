@@ -3,6 +3,7 @@ package generado;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Punto de entrada para compilar texto en memoria (lo usará el IDE).
@@ -60,9 +61,22 @@ public final class ServicioCompilacion {
             }
         }
 
+        // Igual que Leaf.main: la lista optimizada sale del código intermedio y es la definitiva
+        List<Cuadrupla> optimizado = null;
+        String fallaOptimizacion = null;
+        if (generador != null) {
+            try {
+                optimizado = new Optimizador(generador).optimizar(generador.getCuadruplas());
+            } catch (RuntimeException | LinkageError e) {
+                // LinkageError: el compilador cargado (por ejemplo, el de C:\Leaf) no trae optimizador o es distinto
+                optimizado = null;
+                fallaOptimizacion = String.valueOf(e.getMessage() != null ? e.getMessage() : e);
+            }
+        }
+
         // Copia ordenada por línea: el IDE no debe depender de la lista estática
         ArrayList<String> ordenados = new ArrayList<>(Leaf.errores);
         ordenados.sort(Comparator.comparingInt(Leaf::extraerLinea));
-        return new ResultadoCompilacion(ordenados, raiz, tabla, tokenInicial, generador, falla);
+        return new ResultadoCompilacion(ordenados, raiz, tabla, tokenInicial, generador, falla, optimizado, fallaOptimizacion);
     }
 }

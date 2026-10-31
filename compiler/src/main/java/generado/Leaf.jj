@@ -121,12 +121,17 @@ public class Leaf/*@bgen(jjtree)*/implements LeafTreeConstants/*@egen*/ {/*@bgen
                         GeneradorCodigoIntermedio generador = new GeneradorCodigoIntermedio(visitante);
                         generador.generar(raiz);
 
-                        System.out.println("\n--- C\u00d3DIGO INTERMEDIO (cu\u00e1druplos) ---");
-                        generador.imprimir(tresDirecciones);
+                        // La original solo se muestra; la optimizada es la definitiva (la usar\u00e1 el c\u00f3digo objeto)
+                        java.util.List<Cuadrupla> original = generador.getCuadruplas();
+                        java.util.List<Cuadrupla> optimizada = new Optimizador(generador).optimizar(original);
+
+                        java.util.List<String> lineas = FormatoCuadruplas.salida(original, optimizada, tresDirecciones);
+                        System.out.println();
+                        for (String linea : lineas) System.out.println(linea);
 
                         if (guardarCuadruplos) {
                             try {
-                                File salida = generador.guardar(archivo, tresDirecciones);
+                                File salida = FormatoCuadruplas.guardar(archivo, lineas);
                                 System.out.println("\nCu\u00e1druplos guardados en: " + salida.getPath());
                             } catch (java.io.IOException ex) {
                                 System.out.println("\nNo se pudo guardar el archivo de cu\u00e1druplos: " + ex.getMessage());
@@ -830,6 +835,8 @@ void nombre_funcion()     : {/*@bgen(jjtree) Id */
 /*@egen*/
 }
 
+/* El mensaje de ingresar puede ser una lista de expresiones separadas por coma, igual que mostrar:
+ * ingresar("Edad de ", $nombre, ": ") */
 void llamada_leer()       : {/*@bgen(jjtree) Leer */
   ASTLeer jjtn000 = new ASTLeer(JJTLEER);
   boolean jjtc000 = true;
@@ -839,7 +846,7 @@ void llamada_leer()       : {/*@bgen(jjtree) Leer */
 {/*@bgen(jjtree) Leer */
     try {
 /*@egen*/
-    <LEER> <PAREN_A> ( literal_texto() )? <PAREN_C>/*@bgen(jjtree)*/
+    <LEER> <PAREN_A> ( expresion() ( <COMA> expresion() )* )? <PAREN_C>/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -854,31 +861,6 @@ void llamada_leer()       : {/*@bgen(jjtree) Leer */
         throw (ParseException)jjte000;
       }
       throw (Error)jjte000;
-    } finally {
-      if (jjtc000) {
-        jjtree.closeNodeScope(jjtn000, true);
-        jjtn000.jjtSetLastToken(getToken(0));
-      }
-    }
-/*@egen*/
-}
-
-void literal_texto()          : {/*@bgen(jjtree) Literal */
-                                  ASTLiteral jjtn000 = new ASTLiteral(JJTLITERAL);
-                                  boolean jjtc000 = true;
-                                  jjtree.openNodeScope(jjtn000);
-                                  jjtn000.jjtSetFirstToken(getToken(1));
-/*@egen*/ Token t; }
-{/*@bgen(jjtree) Literal */
-    try {
-/*@egen*/
-    t=<CADENA>/*@bgen(jjtree)*/
-               {
-                 jjtree.closeNodeScope(jjtn000, true);
-                 jjtc000 = false;
-                 jjtn000.jjtSetLastToken(getToken(0));
-               }
-/*@egen*/ { jjtn000.jjtSetValue(t.image); }/*@bgen(jjtree)*/
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);

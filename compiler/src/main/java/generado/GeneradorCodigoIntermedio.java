@@ -1,9 +1,5 @@
 package generado;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,60 +103,12 @@ public class GeneradorCodigoIntermedio {
 
     /** Código en forma de tres direcciones, una línea por cuádrupla. */
     public List<String> getTexto() {
-        List<String> lineas = new ArrayList<String>();
-        for (Cuadrupla c : cuadruplas) {
-            boolean sinSangria = c.op == Op.ETIQUETA || c.op == Op.INICIO
-                    || c.op == Op.FUNC_INICIO || c.op == Op.FUNC_FIN;
-            lineas.add(sinSangria ? c.aTexto() : "    " + c.aTexto());
-        }
-        return lineas;
+        return FormatoCuadruplas.texto(cuadruplas);
     }
 
     /** Tabla de cuádruplos: operación, arg1, arg2, resultado (cuatro columnas, sin índice). */
     public List<String> getTabla() {
-        int w1 = 9, w2 = 4, w3 = 4, w4 = 9;
-        for (Cuadrupla c : cuadruplas) {
-            String[] col = c.columnas();
-            w1 = Math.max(w1, col[0].length());
-            w2 = Math.max(w2, col[1].length());
-            w3 = Math.max(w3, col[2].length());
-            w4 = Math.max(w4, col[3].length());
-        }
-        List<String> lineas = new ArrayList<String>();
-        String formato = "%-" + w1 + "s | %-" + w2 + "s | %-" + w3 + "s | %-" + w4 + "s";
-        lineas.add(String.format(formato, "operación", "arg1", "arg2", "resultado"));
-        for (Cuadrupla c : cuadruplas) {
-            String[] col = c.columnas();
-            lineas.add(String.format(formato, col[0], col[1], col[2], col[3]));
-        }
-        return lineas;
-    }
-
-    /** Imprime la tabla de cuádruplos; con tresDirecciones, agrega debajo la forma de texto (depuración). */
-    public void imprimir(boolean tresDirecciones) {
-        for (String linea : getTabla()) System.out.println(linea);
-        if (tresDirecciones) {
-            System.out.println("\n--- Forma de tres direcciones ---");
-            for (String linea : getTexto()) System.out.println(linea);
-        }
-    }
-
-    /** Guarda la tabla (y, si se pide, la forma de tres direcciones) en un .cuad junto al fuente (programa.leaf -> programa.cuad). */
-    public File guardar(File fuente, boolean tresDirecciones) throws IOException {
-        String nombre = fuente.getName();
-        int punto = nombre.lastIndexOf('.');
-        if (punto > 0) nombre = nombre.substring(0, punto);
-        File carpeta = fuente.getAbsoluteFile().getParentFile();
-        File salida = new File(carpeta, nombre + ".cuad");
-
-        List<String> todo = new ArrayList<String>(getTabla());
-        if (tresDirecciones) {
-            todo.add("");
-            todo.add("--- Forma de tres direcciones ---");
-            todo.addAll(getTexto());
-        }
-        Files.write(salida.toPath(), todo, StandardCharsets.UTF_8);
-        return salida;
+        return FormatoCuadruplas.tabla(cuadruplas);
     }
 
     // ================================================================
@@ -816,7 +764,18 @@ public class GeneradorCodigoIntermedio {
     /** ingresar() / ingresar("mensaje") */
     private String leer(Node n, boolean comoSentencia) {
         String mensaje = null;
-        if (n.jjtGetNumChildren() > 0) mensaje = valor(n.jjtGetChild(0));
+        int partes = n.jjtGetNumChildren();
+        Node unica = (partes == 1) ? sinEnvolturas(n.jjtGetChild(0)) : null;
+        if (unica instanceof ASTLiteral && unica.jjtGetNumChildren() == 0 && valor(unica).startsWith("\"")) {
+            // Un solo texto literal: queda en el propio read (arg1)
+            mensaje = valor(unica);
+        } else if (partes > 0) {
+            // Varias partes o una variable: se evalúan todas, se imprimen SIN "fin" (sin salto de línea,
+            // para que el usuario escriba a continuación del mensaje) y el read va sin mensaje
+            List<String> valores = new ArrayList<String>();
+            for (int i = 0; i < partes; i++) valores.add(expr(n.jjtGetChild(i)));
+            for (String v : valores) emitir(Op.MUESTRA, v, null, null);
+        }
         if (comoSentencia) {
             emitir(Op.LEE, mensaje, null, null);
             return null;

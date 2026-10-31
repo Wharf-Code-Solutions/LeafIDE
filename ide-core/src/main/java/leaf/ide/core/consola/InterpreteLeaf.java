@@ -165,6 +165,9 @@ public final class InterpreteLeaf {
         agregar("cuadruplos", List.of(), "cuadruplos [archivo]", "Imprime la tabla de cuádruplos (código intermedio).", "",
                 a -> artefacto(a, "intermedio", "cuadruplos [archivo]",
                         f -> tabla(f, "No hay cuádruplos: el programa tiene errores (usa 'errores') o el compilador aún no genera código intermedio.")));
+        agregar("optimizado", List.of(), "optimizado [archivo]", "Imprime la tabla de cuádruplos optimizados (optimización).", "",
+                a -> artefacto(a, "optimizacion", "optimizado [archivo]",
+                        f -> tabla(f, "No hay código optimizado: el programa tiene errores (usa 'errores') o el compilador aún no optimiza.")));
         agregar("errores", List.of(), "errores [archivo]", "Compila todo y muestra solo el informe de errores.", "", this::errores);
         agregar("ejecutar", List.of(), "ejecutar", "Ejecuta el programa (todavía no disponible).", "",
                 a -> "Todavía no se puede ejecutar el programa: el compilador aún no genera código (llega con el hito M10).\n"

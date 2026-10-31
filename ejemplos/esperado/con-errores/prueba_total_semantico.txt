@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 21 filas
   tabla "Traza de ámbitos": 65 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   lexico L0:C0 - Parece que falta una comilla " de cierre en un texto o hay un símbolo inválido al final del archivo.

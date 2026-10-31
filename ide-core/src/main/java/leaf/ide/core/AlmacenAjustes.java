@@ -31,6 +31,11 @@ public final class AlmacenAjustes {
         return carpeta;
     }
 
+    /** {@code true} si ya hay ajustes guardados (el IDE se usó antes en este equipo). */
+    public boolean hayAjustesGuardados() {
+        return Files.isRegularFile(carpeta.resolve(ARCHIVO));
+    }
+
     public Ajustes leer() {
         Ajustes base = Ajustes.porDefecto();
         Path archivo = carpeta.resolve(ARCHIVO);
@@ -48,7 +53,9 @@ public final class AlmacenAjustes {
                 booleano(p, "resaltado", base.resaltado()),
                 perspectiva.isEmpty() ? base.perspectiva() : perspectiva,
                 p.getProperty("carpetaTrabajo", "").strip(),
-                booleano(p, "sincronizarTerminal", base.sincronizarTerminal()));
+                booleano(p, "sincronizarTerminal", base.sincronizarTerminal()),
+                booleano(p, "compiladorDeCarpeta", base.compiladorDeCarpeta()),
+                p.getProperty("carpetaCompilador", base.carpetaCompilador()).strip());
     }
 
     public void guardar(Ajustes a) throws IOException {
@@ -60,6 +67,8 @@ public final class AlmacenAjustes {
         p.setProperty("perspectiva", a.perspectiva());
         p.setProperty("carpetaTrabajo", a.carpetaTrabajo());
         p.setProperty("sincronizarTerminal", Boolean.toString(a.sincronizarTerminal()));
+        p.setProperty("compiladorDeCarpeta", Boolean.toString(a.compiladorDeCarpeta()));
+        p.setProperty("carpetaCompilador", a.carpetaCompilador());
         try (Writer w = Files.newBufferedWriter(carpeta.resolve(ARCHIVO), StandardCharsets.UTF_8)) {
             p.store(w, "Ajustes de LeafIDE");
         }

@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 3 filas
   tabla "Traza de ámbitos": 30 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   lexico L14:C27 - Carácter no reconocido: '='.

@@ -7,7 +7,7 @@ semantico: OK
   tabla "Tabla de símbolos": 1 filas
   tabla "Traza de ámbitos": 5 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   lexico L3:C20 - Carácter no reconocido: '@'.

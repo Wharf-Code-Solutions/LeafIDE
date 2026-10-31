@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 2 filas
   tabla "Traza de ámbitos": 5 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   semantico L2:C37 - Incompatibilidad de tipos: Intentas guardar un 'texto' en una variable definida como 'entero'.

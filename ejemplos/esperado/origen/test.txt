@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 34 filas
   tabla "Traza de ámbitos": 138 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   semantico L220:C5 - Uso de variable fantasma: '$x' no ha sido declarada.

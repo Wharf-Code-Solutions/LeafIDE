@@ -12,15 +12,15 @@ public interface LeafTreeConstants
   public int JJTVARIABLE = 6;
   public int JJTID = 7;
   public int JJTLEER = 8;
-  public int JJTLITERAL = 9;
-  public int JJTEXPRESION = 10;
-  public int JJTLOGICA = 11;
-  public int JJTNOT = 12;
-  public int JJTCOMPARACION = 13;
-  public int JJTARITMETICA = 14;
-  public int JJTNEGACION = 15;
-  public int JJTRAIZ = 16;
-  public int JJTLONGITUD = 17;
+  public int JJTEXPRESION = 9;
+  public int JJTLOGICA = 10;
+  public int JJTNOT = 11;
+  public int JJTCOMPARACION = 12;
+  public int JJTARITMETICA = 13;
+  public int JJTNEGACION = 14;
+  public int JJTRAIZ = 15;
+  public int JJTLONGITUD = 16;
+  public int JJTLITERAL = 17;
   public int JJTTIPO = 18;
   public int JJTTIPOARREGLO = 19;
   public int JJTOPERADOR = 20;
@@ -55,7 +55,6 @@ public interface LeafTreeConstants
     "Variable",
     "Id",
     "Leer",
-    "Literal",
     "Expresion",
     "Logica",
     "Not",
@@ -64,6 +63,7 @@ public interface LeafTreeConstants
     "Negacion",
     "Raiz",
     "Longitud",
+    "Literal",
     "Tipo",
     "TipoArreglo",
     "Operador",
@@ -88,4 +88,4 @@ public interface LeafTreeConstants
     "Quitar",
   };
 }
-/* JavaCC - OriginalChecksum=ead99bf446c3574ad0202011b3c9633e (do not edit this line) */
+/* JavaCC - OriginalChecksum=359db52505e65da69e90c29402ba7527 (do not edit this line) */

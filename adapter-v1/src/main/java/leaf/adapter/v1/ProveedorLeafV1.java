@@ -24,7 +24,7 @@ public final class ProveedorLeafV1 implements ProveedorCompilador {
             new FaseSintactica(),
             new FaseSemantica(),
             new FaseIntermedio(),
-            new FaseNoImplementada(FASE_OPTIMIZACION, "Optimización", List.of(FASE_INTERMEDIO)),
+            new FaseOptimizacion(),
             new FaseNoImplementada(FASE_OBJETO, "Código objeto", List.of(FASE_OPTIMIZACION)));
 
     private final LenguajeDef lenguaje = LenguajeLeaf.cargar();

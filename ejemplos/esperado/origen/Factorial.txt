@@ -9,6 +9,7 @@ semantico: OK
 intermedio: OK
   tabla "Cuádruplos": 24 filas
   tabla "Temporales": 5 filas
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OK
+  tabla "Cuádruplos optimizados": 24 filas
 objeto: NO_IMPLEMENTADA
 diagnosticos:

@@ -12,7 +12,6 @@ public interface LeafVisitor
   public Object visit(ASTVariable node, Object data);
   public Object visit(ASTId node, Object data);
   public Object visit(ASTLeer node, Object data);
-  public Object visit(ASTLiteral node, Object data);
   public Object visit(ASTExpresion node, Object data);
   public Object visit(ASTLogica node, Object data);
   public Object visit(ASTNot node, Object data);
@@ -21,6 +20,7 @@ public interface LeafVisitor
   public Object visit(ASTNegacion node, Object data);
   public Object visit(ASTRaiz node, Object data);
   public Object visit(ASTLongitud node, Object data);
+  public Object visit(ASTLiteral node, Object data);
   public Object visit(ASTTipo node, Object data);
   public Object visit(ASTTipoArreglo node, Object data);
   public Object visit(ASTOperador node, Object data);
@@ -44,4 +44,4 @@ public interface LeafVisitor
   public Object visit(ASTAgregar node, Object data);
   public Object visit(ASTQuitar node, Object data);
 }
-/* JavaCC - OriginalChecksum=a2dab23e6e111345e45e8cda92a117fe (do not edit this line) */
+/* JavaCC - OriginalChecksum=4e2d8da6d68e4f9e3ff465c0828167ac (do not edit this line) */

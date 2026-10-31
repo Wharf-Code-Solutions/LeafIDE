@@ -2,7 +2,7 @@
 
 IDE de escritorio para el compilador del lenguaje **Leaf**, hecho con JavaCC. Es un proyecto escolar de la materia Autómatas 2.
 
-Muestra a la vez el código, una consola de comandos y las fases de compilación: **léxico, sintáctico, semántico y código intermedio (cuádruplos)**. Las fases de optimización y código objeto aparecen como «próximamente».
+Muestra a la vez el código, una consola de comandos y las fases de compilación: **léxico, sintáctico, semántico, código intermedio (cuádruplos) y optimización**. La fase de código objeto aparece como «próximamente».
 
 ## Qué incluye
 - **Editor** con resaltado de Leaf, subrayado de errores y análisis en vivo.
@@ -41,7 +41,7 @@ mvnw.cmd verify
 | `ide-ui/` | Interfaz Swing (FlatLaf, RSyntaxTextArea, ModernDocking) |
 | `ide-app/` | Ensamblado y arranque |
 | `ejemplos/` | Programas Leaf válidos y con errores, usados también por las pruebas |
-| `scripts/` | Scripts `.bat` para compilar, abrir y actualizar el compilador |
+| `scripts/` | Scripts `.bat` para compilar, abrir, actualizar la copia del compilador y restaurar un compilador dañado (`restaurar-compilador.bat`) |
 
 ## Usar el compilador sin el IDE
 Tras compilar, el compilador queda en `ide-app\target\lib`. Por ejemplo:
@@ -50,7 +50,7 @@ java -cp "ide-app\target\lib\*" generado.Leaf ejemplos\validos\Fibonacci.txt
 ```
 
 ## Versión del compilador
-El IDE usa el compilador del repositorio [Leaf](https://github.com/Wharf-Code-Solutions/Leaf); el commit exacto que lleva dentro se ve en la barra de estado (por ejemplo, `Leaf 9ac4869`). `scripts\actualizar-compilador.bat <carpeta-del-clon>` trae una versión nueva desde un clon de ese repositorio.
+Por defecto el IDE compila con el compilador base que esté en `C:\Leaf` (sus `.class` de `src\generado`, el repositorio [Leaf](https://github.com/Wharf-Code-Solutions/Leaf)), y lleva dentro una copia de respaldo que se elige en *Compilar → Compilador*. La barra de estado dice cuál se usa (por ejemplo, `dd0e608 · C:\Leaf\src`). `scripts\actualizar-compilador.bat <carpeta-del-clon>` actualiza la copia de respaldo desde un clon de ese repositorio.
 
 ## Dependencias
 FlatLaf, RSyntaxTextArea, Gson y ModernDocking (todas de Maven Central).

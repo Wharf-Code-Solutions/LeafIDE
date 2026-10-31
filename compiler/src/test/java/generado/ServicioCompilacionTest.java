@@ -46,6 +46,27 @@ class ServicioCompilacionTest {
     }
 
     @Test
+    void elCodigoIntermedioSeOptimizaComoEnLeafMain() {
+        ResultadoCompilacion r = ServicioCompilacion.compilar("definir $a como entero con valor de 2 + 3.\nmostrar($a).");
+
+        assertNotNull(r.codigoOptimizado);
+        assertNull(r.fallaOptimizacion);
+        // Plegado de constantes: 2 + 3 se calcula al compilar y la suma desaparece.
+        assertTrue(r.codigoIntermedio.getCuadruplas().stream().anyMatch(c -> c.op == Cuadrupla.Op.SUMA));
+        assertTrue(r.codigoOptimizado.stream().noneMatch(c -> c.op == Cuadrupla.Op.SUMA), r.codigoOptimizado.toString());
+        assertTrue(r.codigoOptimizado.stream().anyMatch(c -> c.op == Cuadrupla.Op.ASIGNA && "5".equals(c.arg1) && "$a".equals(c.resultado)),
+                r.codigoOptimizado.toString());
+        assertTrue(r.codigoOptimizado.size() < r.codigoIntermedio.getCuadruplas().size());
+    }
+
+    @Test
+    void conErroresTampocoHayCodigoOptimizado() {
+        ResultadoCompilacion r = ServicioCompilacion.compilar(CON_DOS_ERRORES);
+        assertNull(r.codigoOptimizado);
+        assertNull(r.fallaOptimizacion);
+    }
+
+    @Test
     void cadaCompilacionEmpiezaSusTemporalesDeCero() {
         String programa = "definir $a como entero con valor de 2.\ndefinir $b como entero con valor de $a + 3.";
         String primera = ServicioCompilacion.compilar(programa).codigoIntermedio.getTexto().toString();

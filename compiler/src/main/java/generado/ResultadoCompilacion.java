@@ -16,9 +16,16 @@ public final class ResultadoCompilacion {
     public final GeneradorCodigoIntermedio codigoIntermedio;
     /** Motivo por el que no se pudo generar el código intermedio de un programa sin errores; null si no hubo falla. */
     public final String fallaCodigoIntermedio;
+    /** Cuádruplos optimizados (la lista definitiva, como en {@code Leaf.main}); null si no hubo código intermedio o falló. */
+    public final List<Cuadrupla> codigoOptimizado;
+    /** Motivo por el que no se pudo optimizar (por ejemplo, un compilador sin optimizador); null si no hubo falla. */
+    public final String fallaOptimizacion;
 
     ResultadoCompilacion(List<String> errores, SimpleNode raiz, TablaSimbolos tabla, Token tokenInicial,
-            GeneradorCodigoIntermedio codigoIntermedio, String fallaCodigoIntermedio) {
+            GeneradorCodigoIntermedio codigoIntermedio, String fallaCodigoIntermedio,
+            List<Cuadrupla> codigoOptimizado, String fallaOptimizacion) {
+        this.codigoOptimizado = codigoOptimizado;
+        this.fallaOptimizacion = fallaOptimizacion;
         this.errores = errores;
         this.raiz = raiz;
         this.tabla = tabla;

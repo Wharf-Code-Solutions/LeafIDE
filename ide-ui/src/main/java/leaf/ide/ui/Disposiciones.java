@@ -71,7 +71,7 @@ final class Disposiciones {
                 columnas(editor, SINTESIS, 0.75);
                 consolasAbajo(principal, 0.30);
                 // Al acoplar un panel junto a otro el docking los reparte por igual: se ajusta ya con la ventana armada.
-                repartirColumnas(principal, 0.14, 0.20, 0.36, 0.15, 0.15);
+                repartirColumnas(principal, 0.12, 0.18, 0.30, 0.30, 0.10);
             }
             case EVALUACION -> {
                 // Pantalla 1: el código y todo lo que se ve de la compilación hasta el código intermedio.

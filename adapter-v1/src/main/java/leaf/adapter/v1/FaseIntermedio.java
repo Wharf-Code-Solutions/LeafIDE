@@ -54,6 +54,11 @@ final class FaseIntermedio implements FaseCompilacion {
     }
 
     static ArtefactoTabla tablaCuadruplos(List<Cuadrupla> cuadruplas) {
+        return tablaCuadruplos("Cuádruplos", cuadruplas);
+    }
+
+    /** Tabla de 4 columnas agrupada por programa principal y por función (también la usa la optimización). */
+    static ArtefactoTabla tablaCuadruplos(String titulo, List<Cuadrupla> cuadruplas) {
         List<Fila> filas = new ArrayList<>();
         String grupo = GRUPO_PRINCIPAL;
         for (int i = 0; i < cuadruplas.size(); i++) {
@@ -65,7 +70,7 @@ final class FaseIntermedio implements FaseCompilacion {
                     Rango.DESCONOCIDO, List.of(), grupo));
             if (c.op == Cuadrupla.Op.FUNC_FIN) grupo = GRUPO_PRINCIPAL;
         }
-        return new ArtefactoTabla("Cuádruplos", COLUMNAS_CUADRUPLOS, filas);
+        return new ArtefactoTabla(titulo, COLUMNAS_CUADRUPLOS, filas);
     }
 
     static ArtefactoTabla tablaTemporales(Map<String, String> tipos) {

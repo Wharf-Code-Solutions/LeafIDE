@@ -1,6 +1,6 @@
 # Manual de usuario de LeafIDE
 
-LeafIDE es un programa de escritorio para escribir programas en el lenguaje **Leaf** y **ver cómo los compila el compilador, fase por fase**: léxico, sintáctico, semántico y código intermedio (cuádruplos). Está pensado para estudiar y exponer el funcionamiento del compilador, no para ejecutar programas (todavía no hay fase de ejecución).
+LeafIDE es un programa de escritorio para escribir programas en el lenguaje **Leaf** y **ver cómo los compila el compilador, fase por fase**: léxico, sintáctico, semántico, código intermedio (cuádruplos) y su optimización. Está pensado para estudiar y exponer el funcionamiento del compilador, no para ejecutar programas (todavía no hay fase de ejecución).
 
 Este manual explica el **IDE**. La sintaxis del lenguaje Leaf no se explica aquí; en la carpeta `ejemplos/` hay programas de muestra.
 
@@ -44,6 +44,13 @@ Abre la carpeta `scripts` y ejecuta **`ejecutar-ide.bat`** (doble clic, o desde 
 - Con **`scripts\ejecutar-ide.bat rapido`** abre el IDE sin volver a compilar (usa lo ya compilado).
 - Si algo falla, mira la sección [Problemas frecuentes](#13-problemas-frecuentes).
 
+### Scripts de la carpeta `scripts`
+| Script | Para qué |
+|---|---|
+| `ejecutar-ide.bat` | Compila y abre el IDE (`rapido`: abre sin compilar). |
+| `restaurar-compilador.bat <carpeta> [--regenerar]` | Reconstruye un compilador al que le borraron archivos, desde la copia del IDE (ver [«Restaurar el compilador»](#restaurar-el-compilador-desde-la-copia-del-ide)). |
+| `actualizar-compilador.bat <clon-de-Leaf>` | Actualiza la copia de respaldo del IDE desde un clon del repositorio Leaf (para quien mantiene el IDE). |
+
 ### Primera vez
 Al abrir el IDE sin haberlo usado antes, aparece un selector para **elegir la carpeta de trabajo** (ver [sección 6](#6-carpeta-de-trabajo-y-explorador)). Puedes elegir la carpeta `ejemplos` del proyecto o la de tus propios programas. Si cancelas, el IDE abre igual.
 
@@ -62,7 +69,7 @@ La ventana se organiza en **paneles** que puedes mover:
 | Abajo | **Problemas**, la consola **Leaf** y la terminal **Sistema**, en pestañas. |
 | Barra inferior | Posición del cursor, archivo, estado, y a la derecha `UTF-8 · Leaf <versión> · API 1`. |
 
-El número que acompaña a «Leaf» en la barra inferior (por ejemplo `9ac4869`) es el **commit del compilador** que el IDE lleva dentro. Sirve para saber exactamente qué versión del compilador estás usando.
+El texto que acompaña a «Leaf» en la barra inferior dice **qué compilador se está usando**: por ejemplo `dd0e608 · C:\Leaf\src` (el compilador base de esa carpeta, en ese commit de Git) o `dd0e608 · copia del IDE` (la copia de respaldo que lleva el IDE, en la versión que tenga). Ver [«Qué compilador usa el IDE»](#qué-compilador-usa-el-ide).
 
 ---
 
@@ -99,9 +106,31 @@ A la derecha aparece una pestaña por fase, con el estado en su título (`· OK`
 | **Análisis sintáctico** | El **árbol sintáctico** (AST) del programa y un volcado en texto. |
 | **Análisis semántico** | La **tabla de símbolos** agrupada por ámbito (nombre, tipo, categoría, ámbito, offset…) y la **traza de ámbitos** (entrar, salir, insertar, buscar). |
 | **Código intermedio (cuádruplos)** | Tres pestañas: **Cuádruplos** (operación, arg 1, arg 2, resultado, agrupadas en «Programa principal» y «Función X»), **Tres direcciones** (el mismo código escrito como `t1 = $a + $b`) y **Temporales** (el tipo de cada `t1`, `t2`…). |
-| Optimización · Código objeto | En gris, «próximamente». |
+| **Optimización** | Lo que hace el **optimizador del compilador** con el código intermedio. Tres pestañas: **Cuádruplos optimizados** (la lista definitiva, con las mismas 4 columnas y grupos), **Tres direcciones** (el código optimizado en texto) y **Resumen** (cuántas cuádruplas tenía el código intermedio y cuántas quedan, por ejemplo «8 → 6 (2 menos)»). La lista original se ve en la fase de código intermedio. El IDE no muestra qué transformación produjo cada cuádrupla, porque el compilador no lo anota. |
+| Código objeto | En gris, «próximamente». |
 
-**Si una fase tiene errores**, las siguientes se marcan como *omitidas*: por ejemplo, si hay un error sintáctico no se hace el análisis semántico, y el código intermedio solo existe cuando el programa **no tiene ningún error**.
+**Si una fase tiene errores**, las siguientes se marcan como *omitidas*: por ejemplo, si hay un error sintáctico no se hace el análisis semántico, y el código intermedio (y con él la optimización) solo existe cuando el programa **no tiene ningún error**.
+
+### Qué compilador usa el IDE
+Por defecto, el IDE compila con **el compilador base de la carpeta `C:\Leaf`**: usa los `.class` que hay en `C:\Leaf\src\generado`, exactamente los mismos que ejecuta `java generado.Leaf` desde `C:\Leaf\src`. Así, lo que ves en las pestañas es lo que hace tu compilador real.
+
+- Si cambias el compilador y lo vuelves a compilar con `javac`, el IDE lo nota solo en la siguiente compilación (no hace falta reiniciarlo).
+- **Si faltan archivos** (por ejemplo, porque se borró `src\generado` o `Leaf.class`, o porque aún no compilaste con `javac`), la fase léxica termina en «fallo interno» con el motivo, por ejemplo «No está `C:\Leaf\src\generado\Leaf.class` (¿se borró o falta compilar con javac?)», y las demás fases se omiten. El IDE **no esconde el problema** usando su copia por su cuenta.
+- El IDE lleva dentro una **copia de respaldo** del compilador. Para usarla: **Compilar → Compilador → Copia del IDE (respaldo)**. Para volver: **Compilar → Compilador → Compilador base de C:\Leaf**.
+- Si tu compilador está en otra carpeta: **Compilar → Compilador → Elegir carpeta del compilador…** (la que contiene `src\generado`, o directamente su `src`).
+- La elección se recuerda al cerrar el IDE.
+- **La primera vez** que se abre el IDE en un equipo, si la carpeta `C:\Leaf` no existe (por ejemplo, alguien que solo descargó el IDE), arranca con la copia del IDE para que funcione de inmediato. Después se respeta lo que elijas.
+
+### Restaurar el compilador desde la copia del IDE
+Si a una carpeta del compilador le borraron archivos (todo `src\generado`, o incluso el `.jj`/`.jjt`), puedes reconstruirla con la copia de respaldo del IDE:
+```
+scripts\restaurar-compilador.bat C:\LeafPrueba
+scripts\restaurar-compilador.bat C:\LeafPrueba --regenerar
+```
+- La carpeta es **obligatoria**: el script nunca elige una por su cuenta. Antes de copiar, dice qué va a hacer y pregunta «¿Continuar? (S/N)» (con `--si` no pregunta).
+- Copia `src\Leaf.jjt` y los `.java` de `src\generado` (sin los dos archivos propios del IDE) y compila con `javac`. Los archivos que ya existan se sobrescriben; **no borra nada** ni toca `src\pruebas`.
+- Sin opciones, copia también los `.java` que generó JavaCC. Con **`--regenerar`** copia solo el `.jjt` y los `.java` hechos a mano, y vuelve a generar el parser con `jjtree` y `javacc` (deben estar en el PATH), como se hace en clase.
+- Restaura la **versión de la copia del IDE** (la que dice la barra de estado con «copia del IDE»). Si tu compilador tiene cambios más nuevos que no se pasaron al IDE con `scripts\actualizar-compilador.bat`, esos no estarán.
 
 ### Enlace entre las vistas y el código
 - Haz **clic en una fila** de tokens (o en un nodo del árbol, o en una fila de la tabla de símbolos): el IDE **marca ese tramo en el editor**.
@@ -148,11 +177,12 @@ Es una consola propia del IDE con comandos para trabajar con el compilador. Escr
 |---|---|
 | `compilar [archivo] [--hasta=fase]` | Compila el editor (o un archivo) y muestra los errores. Sin archivo, actualiza las pestañas igual que el botón. |
 | `leafc <archivo> [--hasta=fase]` | Compila un archivo del disco sin tocar el editor. |
-| `lexico`, `sintactico`, `semantico`, `intermedio` | Compilan hasta esa fase. |
+| `lexico`, `sintactico`, `semantico`, `intermedio`, `optimizar` | Compilan hasta esa fase. |
 | `tokens [archivo]` | Imprime la tabla de tokens. |
 | `ast [archivo]` | Imprime el árbol sintáctico. |
 | `simbolos [archivo]` | Imprime la tabla de símbolos. |
 | `cuadruplos [archivo]` | Imprime la tabla de cuádruplos. |
+| `optimizado [archivo]` | Imprime la tabla de cuádruplos optimizados. |
 | `errores [archivo]` | Muestra solo el informe de errores. |
 | `fases` | Lista las fases y cuáles están implementadas. |
 | `version` | Versión del IDE, del compilador y de Java. |
@@ -168,11 +198,12 @@ Las rutas pueden ser relativas a la carpeta de la consola. Los valores de `--has
 ### Terminal Sistema
 Es un `cmd` de Windows dentro del IDE. Cada línea se ejecuta como comando, en la carpeta de trabajo; `cd` cambia de carpeta y `cd C:\otra` o `D:` cambian de unidad. Si un programa pide datos, lo que escribas va a su entrada. **Ctrl+C** detiene el programa en marcha. No es una terminal completa: sirve para comandos y programas de línea de comandos, no para programas de pantalla completa ni colores ANSI.
 
-El IDE prepara el `CLASSPATH` para que funcione el comando del compilador, como en el manual:
+La terminal se comporta **igual que un `cmd` normal**: el IDE no le añade nada. Para ejecutar el compilador base, ve a su carpeta y escribe el comando del manual:
 ```
-java generado.Leaf ruta\al\programa.txt
+cd C:\Leaf\src
+java generado.Leaf pruebas\SumaBasica.txt
 ```
-Esa línea imprime la salida completa del compilador (informe de errores y, si no hay errores, la tabla de cuádruplos). Con `--guardar` el compilador escribe además un archivo `.cuad` junto al programa, y con `--tres-dir` agrega la forma de tres direcciones.
+Esa línea ejecuta los `.class` de esa carpeta e imprime la salida completa del compilador (informe de errores y, si no hay errores, el código intermedio y el código intermedio optimizado). Si faltan archivos del compilador, verás el mismo error que en cualquier `cmd`. Con `--guardar` el compilador escribe además un archivo `.cuad` junto al programa, y con `--tres-dir` agrega la forma de tres direcciones.
 
 ---
 
@@ -204,7 +235,7 @@ Una *perspectiva* es una disposición predefinida de los paneles. Se eligen en *
 |---|---|
 | **Escritura** | Explorador, editor y consolas. Las fases ocultas. |
 | **Análisis** | Explorador, editor y las fases léxica, sintáctica y semántica en pestañas. (La que abre la primera vez.) |
-| **Síntesis** | Editor y, en columnas, código intermedio, optimización y código objeto. |
+| **Síntesis** | Editor y, en columnas, código intermedio y optimización (para compararlos lado a lado) y código objeto. |
 | **Evaluación (3 pantallas)** | Pantalla 1: explorador, editor, consolas y las cuatro primeras fases (léxico, sintáctico, semántico e intermedio) en pestañas. Pantalla 2: Optimización. Pantalla 3: Código objeto. Con varios monitores, las ventanas 2 y 3 se abren en el segundo y tercer monitor; con uno solo, se abren encima del principal. |
 
 ### Guardar tu propia disposición
@@ -221,7 +252,7 @@ Sirve para **explicar una compilación paso a paso**. Es **opcional**: siempre e
 
 **Activar:** botón **Demostración** de la barra, o *Compilar → Modo demostración*. Aparece una barra de controles y una línea de narración.
 
-El IDE compila el programa del editor y lo «reproduce» fase por fase: los tokens van apareciendo en la tabla, el árbol crece nodo por nodo, aparecen los símbolos y por último las cuádruplas. La fase en curso lleva **▶** en su título, se pone al frente, y cada elemento marca su tramo en el editor.
+El IDE compila el programa del editor y lo «reproduce» fase por fase: los tokens van apareciendo en la tabla, el árbol crece nodo por nodo, aparecen los símbolos, luego las cuádruplas y por último las cuádruplas optimizadas. La fase en curso lleva **▶** en su título, se pone al frente, y cada elemento marca su tramo en el editor.
 
 | Control | Atajo | Qué hace |
 |---|---|---|
@@ -245,7 +276,7 @@ El IDE guarda todo en la carpeta **`%USERPROFILE%\.leafide`**:
 
 | Archivo | Contenido |
 |---|---|
-| `ajustes.properties` | Tema, análisis en vivo, resaltado, última perspectiva, carpeta de trabajo y la sincronización de la terminal. |
+| `ajustes.properties` | Tema, análisis en vivo, resaltado, última perspectiva, carpeta de trabajo, la sincronización de la terminal y qué compilador usar (el de una carpeta, por defecto `C:\Leaf`, o la copia del IDE). |
 | `layouts\ultima.xml` | La disposición de los paneles al cerrar (se restaura al abrir). |
 | `layouts\<nombre>.xml` | Las disposiciones que guardaste con nombre. |
 
@@ -278,7 +309,9 @@ Para **empezar de cero**, cierra el IDE y borra esa carpeta (o solo el archivo q
 | No descarga nada / se queda esperando | La primera vez hace falta internet. Revisa proxy, firewall o antivirus que bloqueen `repo.maven.apache.org`. |
 | `ejecutar-ide.bat rapido` dice que no puede acceder al archivo jar | Aún no se ha compilado: ejecútalo sin `rapido`. |
 | No puedo recompilar y aparece un error de acceso al `.jar` | Hay una ventana de LeafIDE abierta (Windows bloquea el archivo). Ciérrala y vuelve a ejecutar. |
-| El comando `java generado.Leaf …` de la terminal Sistema dice que no encuentra la clase | Solo está preparado cuando el IDE se abre con `ejecutar-ide.bat`. Si lo abres de otra forma, la terminal no sabe dónde está el compilador. |
+| El comando `java generado.Leaf …` de la terminal Sistema dice «Could not find or load main class generado.Leaf» | Como en cualquier `cmd`: ejecútalo desde la carpeta que contiene `generado` (por ejemplo `C:\Leaf\src`) y comprueba que el compilador esté compilado con `javac`. |
+| La fase léxica dice «No se encuentra el compilador» o «No está …\Leaf.class» | Faltan archivos del compilador base en la carpeta elegida, o no está compilado. Regenera/compila el compilador en `C:\Leaf`, o usa **Compilar → Compilador → Copia del IDE (respaldo)**. |
+| La fase léxica dice que el compilador «no es compatible con el IDE» | El compilador de la carpeta cambió algo que el IDE usa (un nombre o un método). Usa la copia del IDE mientras tanto y avisa para adaptar el IDE. |
 | El explorador dice «Sin carpeta» | Usa *Archivo → Abrir carpeta…*. Si la carpeta guardada ya no existe, el IDE vuelve a pedirla. |
 | Al arrancar sale un aviso de FlatLaf sobre «restricted method» | Es un aviso de Java sobre una biblioteca; no afecta al funcionamiento. |
 | Quiero volver a como estaba al principio | *Ver → Restaurar diseño*, o borra `%USERPROFILE%\.leafide\layouts\ultima.xml`. |
@@ -286,7 +319,8 @@ Para **empezar de cero**, cierra el IDE y borra esa carpeta (o solo el archivo q
 ---
 
 ## 14. Lo que el IDE todavía no hace
-- **No ejecuta programas Leaf:** el comando `ejecutar` y las fases de **optimización** y **código objeto** aún no existen.
+- **No ejecuta programas Leaf:** el comando `ejecutar` y la fase de **código objeto** aún no existen.
+- La optimización no indica qué transformación produjo cada cuádrupla (el compilador no lo anota).
 - Edita **un archivo a la vez** (sin pestañas de documentos), y el explorador no crea, borra ni renombra archivos.
 - El explorador solo lista `.txt` y `.leaf`.
 - Las filas de la tabla de cuádruplos no enlazan con la línea del código.

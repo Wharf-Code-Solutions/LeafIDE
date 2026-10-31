@@ -7,7 +7,7 @@ semantico: CON_ERRORES
   tabla "Tabla de símbolos": 0 filas
   tabla "Traza de ámbitos": 2 filas
 intermedio: OMITIDA
-optimizacion: NO_IMPLEMENTADA
+optimizacion: OMITIDA
 objeto: NO_IMPLEMENTADA
 diagnosticos:
   semantico L2:C1 - Uso de variable fantasma: '$z' no ha sido declarada.

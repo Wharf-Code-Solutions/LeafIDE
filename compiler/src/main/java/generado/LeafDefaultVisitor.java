@@ -33,9 +33,6 @@ public class LeafDefaultVisitor implements LeafVisitor{
   public Object visit(ASTLeer node, Object data){
     return defaultVisit(node, data);
   }
-  public Object visit(ASTLiteral node, Object data){
-    return defaultVisit(node, data);
-  }
   public Object visit(ASTExpresion node, Object data){
     return defaultVisit(node, data);
   }
@@ -58,6 +55,9 @@ public class LeafDefaultVisitor implements LeafVisitor{
     return defaultVisit(node, data);
   }
   public Object visit(ASTLongitud node, Object data){
+    return defaultVisit(node, data);
+  }
+  public Object visit(ASTLiteral node, Object data){
     return defaultVisit(node, data);
   }
   public Object visit(ASTTipo node, Object data){
@@ -127,4 +127,4 @@ public class LeafDefaultVisitor implements LeafVisitor{
     return defaultVisit(node, data);
   }
 }
-/* JavaCC - OriginalChecksum=c58b8820fe0598f3b0ba390c5980bcd4 (do not edit this line) */
+/* JavaCC - OriginalChecksum=7b27509ca2a120f564bc0e702432384b (do not edit this line) */

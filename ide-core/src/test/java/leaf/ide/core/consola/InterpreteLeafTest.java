@@ -61,7 +61,7 @@ class InterpreteLeafTest {
     @Test
     void ayudaListaLosComandosYElDetalleDeUno() {
         String general = ok("ayuda").texto();
-        for (String c : List.of("compilar", "tokens", "ast", "simbolos", "cuadruplos", "errores", "abrir", "guardar", "nuevo", "ls", "cd",
+        for (String c : List.of("compilar", "tokens", "ast", "simbolos", "cuadruplos", "optimizado", "errores", "abrir", "guardar", "nuevo", "ls", "cd",
                 "tema", "fases", "version", "limpiar", "ejecutar", "perspectiva", "leafc")) {
             assertTrue(general.contains(c), "falta " + c + " en la ayuda:\n" + general);
         }
@@ -225,6 +225,13 @@ class InterpreteLeafTest {
         String t = ok("cuadruplos").texto();
         assertTrue(t.contains("No hay cuádruplos"), t);
         assertFalse(ctx.ultimoActualizar, "cuadruplos no debe cambiar lo que se ve en las pestañas");
+    }
+
+    @Test
+    void optimizadoExplicaPorQueNoHayTablaCuandoLaFaseNoGeneraNada() {
+        String t = ok("optimizado").texto();
+        assertTrue(t.contains("No hay código optimizado"), t);
+        assertFalse(ctx.ultimoActualizar, "optimizado no debe cambiar lo que se ve en las pestañas");
     }
 
     @Test
