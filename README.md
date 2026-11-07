@@ -50,7 +50,7 @@ java -cp "ide-app\target\lib\*" generado.Leaf ejemplos\validos\Fibonacci.txt
 ```
 
 ## Versión del compilador
-Por defecto el IDE compila con el compilador base que esté en `C:\Leaf` (sus `.class` de `src\generado`, el repositorio [Leaf](https://github.com/Wharf-Code-Solutions/Leaf)), y lleva dentro una copia de respaldo que se elige en *Compilar → Compilador*. La barra de estado dice cuál se usa (por ejemplo, `dd0e608 · C:\Leaf\src`). `scripts\actualizar-compilador.bat <carpeta-del-clon>` actualiza la copia de respaldo desde un clon de ese repositorio.
+Por defecto el IDE compila con el compilador base que esté en `C:\Leaf` (sus `.class` de `src\generado`, el repositorio [Leaf](https://github.com/Wharf-Code-Solutions/Leaf)), y lleva dentro una copia de respaldo que se elige en *Compilar → Compilador*. La barra de estado dice cuál se usa (por ejemplo, `00c818a · C:\Leaf\src`). `scripts\actualizar-compilador.bat <carpeta-del-clon>` actualiza la copia de respaldo desde un clon de ese repositorio.
 
 ## Dependencias
 FlatLaf, RSyntaxTextArea, Gson y ModernDocking (todas de Maven Central).

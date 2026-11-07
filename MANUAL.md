@@ -69,7 +69,7 @@ La ventana se organiza en **paneles** que puedes mover:
 | Abajo | **Problemas**, la consola **Leaf** y la terminal **Sistema**, en pestañas. |
 | Barra inferior | Posición del cursor, archivo, estado, y a la derecha `UTF-8 · Leaf <versión> · API 1`. |
 
-El texto que acompaña a «Leaf» en la barra inferior dice **qué compilador se está usando**: por ejemplo `dd0e608 · C:\Leaf\src` (el compilador base de esa carpeta, en ese commit de Git) o `dd0e608 · copia del IDE` (la copia de respaldo que lleva el IDE, en la versión que tenga). Ver [«Qué compilador usa el IDE»](#qué-compilador-usa-el-ide).
+El texto que acompaña a «Leaf» en la barra inferior dice **qué compilador se está usando**: por ejemplo `00c818a · C:\Leaf\src` (el compilador base de esa carpeta, en ese commit de Git) o `00c818a · copia del IDE` (la copia de respaldo que lleva el IDE, en la versión que tenga). Ver [«Qué compilador usa el IDE»](#qué-compilador-usa-el-ide).
 
 ---
 
